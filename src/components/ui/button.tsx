@@ -1,6 +1,7 @@
 "use client";
 
 import { Button as FlowbiteButton, Spinner } from "flowbite-react";
+import Link from "next/link";
 import type { ComponentProps } from "react";
 
 type FlowbiteButtonProps = ComponentProps<typeof FlowbiteButton>;
@@ -18,6 +19,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <FlowbiteButton
+      as={props.as ?? (props.href ? Link : undefined)}
       disabled={disabled || isProcessing}
       className={className}
       {...props}
