@@ -2,7 +2,7 @@
 id: M1-02
 phase: 2
 role: ops
-status: review
+status: done
 branch: feat/m1-02-compose
 needs: 
 ---
@@ -149,7 +149,7 @@ docker-compose.yml
 
 ## UAT
 
-- [ ] Copy `.env.example` to `.env`; run `docker compose up db -d` — `docker compose ps` shows `db` **healthy** and port **5432** published on host
-- [ ] Run `docker compose up --build -d` (both services) — `docker compose ps` shows `app` **Up** (running); image build finishes without error
-- [ ] `app` Compose healthcheck may stay **unhealthy** until M1-03 ships `GET /api/health` — expected; note status if verifying manually
-- [ ] Optional dev path: with only `db` up, `npm run dev` on host works when `DATABASE_URL` uses `localhost:5432` (no requirement to change app code this phase)
+- [x] Copy `.env.example` to `.env`; run `docker compose up db -d` — `docker compose ps` shows `db` **healthy** and port **5432** published on host
+- [x] Run `docker compose up --build -d` (both services) — `docker compose ps` shows `app` **Up** (running); image build finishes without error
+- [x] `app` Compose healthcheck may stay **unhealthy** until M1-03 ships `GET /api/health` — expected; note status if verifying manually
+- [x] Optional dev path: with only `db` up, `npm run dev` on host works when `DATABASE_URL` uses `localhost:5432` (no requirement to change app code this phase)
