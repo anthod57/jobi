@@ -60,14 +60,18 @@ export function OfferCard({ offer }: OfferCardProps) {
               </Link>
             </h2>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-secondary-600 dark:text-secondary-400">
-              <span className="inline-flex items-center gap-1.5">
-                <BuildingOffice2Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {offer.company}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <MapPinIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {offer.locationLabel}
-              </span>
+              {offer.company ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <BuildingOffice2Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {offer.company}
+                </span>
+              ) : null}
+              {offer.locationLabel ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPinIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {offer.locationLabel}
+                </span>
+              ) : null}
               {dateLabel ? (
                 <span className="inline-flex items-center gap-1.5">
                   <CalendarIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -102,7 +106,12 @@ export function OfferCard({ offer }: OfferCardProps) {
             ))}
           </div>
 
-          <Button href={`/offres/${offer.id}`} color="light" size="sm">
+          <Button
+            href={`/offres/${offer.id}`}
+            color="light"
+            size="sm"
+            className="w-fit shrink-0"
+          >
             Voir le détail
           </Button>
         </div>

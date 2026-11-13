@@ -34,12 +34,12 @@ export function ScoreBreakdownCard({
         </div>
 
         {!breakdown || breakdown.isEmptyProfile ? (
-          <div className="space-y-3">
-            <Alert variant="info">
+          <div className="flex flex-col items-start gap-3">
+            <Alert variant="info" className="w-full">
               Complétez votre profil (titre cible, compétences ou préférences)
               pour calculer un score de compatibilité détaillé.
             </Alert>
-            <Button href="/profil" color="primary" size="sm">
+            <Button href="/profil" color="primary" size="sm" className="w-fit">
               Compléter mon profil
             </Button>
           </div>
@@ -98,7 +98,7 @@ export function ScoreBreakdownCard({
                         {criterion.detail}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                       {criterion.score !== null ? (
                         <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">
                           {criterion.score} %

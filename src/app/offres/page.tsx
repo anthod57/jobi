@@ -119,12 +119,17 @@ export default async function OffresPage({
 
       {isEmptyProfile ? (
         <Alert variant="info">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
             <span>
               Votre profil est vide ou incomplet : complétez-le pour calculer le
               score de compatibilité des offres.
             </span>
-            <Button href="/profil" color="primary" size="sm">
+            <Button
+              href="/profil"
+              color="primary"
+              size="sm"
+              className="w-fit shrink-0"
+            >
               Compléter mon profil
             </Button>
           </div>
@@ -153,27 +158,27 @@ export default async function OffresPage({
             </div>
 
             {hasActiveFilters ? (
-              <Button href="/offres" color="light">
+              <Button href="/offres" color="light" className="w-fit">
                 Réinitialiser les filtres
               </Button>
             ) : hasConfiguredSource ? (
               <div className="flex flex-wrap items-center gap-3">
                 <form action={runManualImport}>
-                  <Button type="submit" color="primary">
+                  <Button type="submit" color="primary" className="w-fit">
                     Importer maintenant
                   </Button>
                 </form>
-                <Button href="/parametres" color="light">
+                <Button href="/parametres" color="light" className="w-fit">
                   Gérer les sources
                 </Button>
               </div>
             ) : (
-              <div className="w-full max-w-lg space-y-3">
-                <Alert variant="info">
+              <div className="flex w-full max-w-lg flex-col items-start gap-3">
+                <Alert variant="info" className="w-full">
                   Aucune source d&apos;offres n&apos;est configurée. Renseignez
                   vos clés France Travail ou Adzuna pour lancer l&apos;import.
                 </Alert>
-                <Button href="/parametres" color="primary">
+                <Button href="/parametres" color="primary" className="w-fit">
                   Configurer dans Paramètres
                 </Button>
               </div>

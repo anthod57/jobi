@@ -99,8 +99,8 @@ export default async function OfferDetailPage({
 
   return (
     <div className="space-y-section">
-      <div>
-        <Button href="/offres" color="light" size="sm">
+      <div className="flex items-start">
+        <Button href="/offres" color="light" size="sm" className="w-fit">
           <ArrowLeftIcon className="mr-1.5 h-4 w-4" aria-hidden="true" />
           Retour aux offres
         </Button>
@@ -113,14 +113,18 @@ export default async function OfferDetailPage({
               {offer.title}
             </h1>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-secondary-600 dark:text-secondary-400">
-              <span className="inline-flex items-center gap-1.5">
-                <BuildingOffice2Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {offer.company}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <MapPinIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {offer.locationLabel}
-              </span>
+              {offer.company ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <BuildingOffice2Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {offer.company}
+                </span>
+              ) : null}
+              {offer.locationLabel ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPinIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {offer.locationLabel}
+                </span>
+              ) : null}
               {dateLabel ? (
                 <span className="inline-flex items-center gap-1.5">
                   <CalendarIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
