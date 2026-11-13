@@ -1,0 +1,15 @@
+---
+description: WF milestone workflow index — commands, roles under .wf/, no GSD on WF projects
+alwaysApply: true
+---
+
+# WF
+
+- Commands: `/wf-setup` → `/wf-discuss-phase` → `/wf-plan-phase` → `/wf-execute-phase` → `/wf-verify-work` → `/wf-ship`
+- Roles live in **`.wf/roles/`** (… + shared-design-system). **Frontend = design system only** (PROJECT § Design system)
+- Code and folders must stay **human-navigable** — follow PROJECT § Codebase layout + shared-maintainability
+- Replies: **short and direct** — see `.wf/roles/shared-communication.md`
+- CLI: `wflow status` | `wflow board` | `wflow integrity` | `wflow sync` | `wflow next` | `wflow set-status`
+- After changing phase status or todos: run **`wflow sync`** and **`wflow integrity`**
+- Do **not** use GSD (`/gsd-*`, `.planning/`) on WF projects
+- Execute reads **one phase file** only; Contract blocks are copied verbatim

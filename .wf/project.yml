@@ -1,0 +1,7 @@
+test: npm test
+e2e: npm run e2e
+lint: npm run lint
+typecheck: npx tsc --noEmit
+audit: npm audit --audit-level=high
+# a11y: npx @axe-core/cli http://localhost:3000
+# perf: npx lighthouse http://localhost:3000 --only-categories=performance --quiet
