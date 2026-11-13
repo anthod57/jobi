@@ -102,6 +102,10 @@ export function SettingsPanel({
   );
   const [syncState, setSyncState] = useState<SettingsActionState | null>(null);
   const [isSyncing, startSync] = useTransition();
+  const [cronEnabled, setCronEnabled] = useState(cronConfig.enabled);
+  const [cronInterval, setCronInterval] = useState(
+    String(cronConfig.intervalHours),
+  );
 
   const hasAnySource = franceTravail.configured || adzuna.configured;
 
@@ -233,7 +237,8 @@ export function SettingsPanel({
               <Checkbox
                 id="cron-enabled"
                 name="enabled"
-                defaultChecked={cronConfig.enabled}
+                checked={cronEnabled}
+                onChange={(e) => setCronEnabled(e.target.checked)}
               />
               <Label htmlFor="cron-enabled">
                 Activer la synchronisation automatique
@@ -247,7 +252,8 @@ export function SettingsPanel({
               <Select
                 id="cron-interval"
                 name="intervalHours"
-                defaultValue={String(cronConfig.intervalHours)}
+                value={cronInterval}
+                onChange={(e) => setCronInterval(e.target.value)}
               >
                 <option value="6">Toutes les 6 heures</option>
                 <option value="12">Toutes les 12 heures</option>

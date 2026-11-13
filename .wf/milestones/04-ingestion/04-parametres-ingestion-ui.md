@@ -61,12 +61,13 @@ export async function triggerManualIngestionAction(): Promise<SettingsActionStat
 - [x] Add `src/app/parametres/page.tsx` — Server Component loading `listCredentialStatuses()`, `IngestionCronConfig`, and `listRecentIngestionRuns(20)`, rendering `SettingsPanel` with title `Paramètres — Jobi`
 - [x] Update `src/app/offres/page.tsx` — display `job_offers` count, « Importer maintenant » action when at least one source is configured, or invitation banner linking to `/parametres` otherwise
 - [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
+- [x] fix: control `cronEnabled` Checkbox and `cronIntervalHours` Select in `src/components/settings/settings-panel.tsx` so selected values stay displayed after `saveCronConfigAction` submits
 
 ## UAT
 
-- [ ] (auto) `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` exit 0
-- [ ] (auto) GET `/parametres` and `/offres` return HTTP 200 with `<html lang="fr">`, expected page titles, and no decrypted secrets in HTML
-- [ ] (auto) Sidebar navigation includes `/parametres` (« Paramètres ») and links cleanly without 404
-- [ ] (human) Keyboard & contrast (shared-audit §4): Tab through `/parametres` and `/offres` controls with visible focus; OS light/dark text and controls remain readable
-- [ ] (human) DS only (shared-design-system): `src/components/settings/*`, `src/app/parametres/*`, and `src/app/offres/*` import UI exclusively from `@/components/ui` (no `flowbite-react` or ad hoc styles)
+- [x] (auto) `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` exit 0
+- [x] (auto) GET `/parametres` and `/offres` return HTTP 200 with `<html lang="fr">`, expected page titles, and no decrypted secrets in HTML
+- [x] (auto) Sidebar navigation includes `/parametres` (« Paramètres ») and links cleanly without 404
+- [x] (human) Keyboard & contrast (shared-audit §4): Tab through `/parametres` and `/offres` controls with visible focus; OS light/dark text and controls remain readable
+- [x] (human) DS only (shared-design-system): `src/components/settings/*`, `src/app/parametres/*`, and `src/app/offres/*` import UI exclusively from `@/components/ui` (no `flowbite-react` or ad hoc styles)
 - [ ] (human) Functional check: saving France Travail/Adzuna keys shows masked `keyHint` without exposing secrets, cron toggle/interval persists, « Importer maintenant » updates `ingestion_runs` table, and `/offres` reflects offer count + configured-source state
