@@ -1,38 +1,14 @@
 "use client";
 
 import { Alert, Badge } from "@/components/ui";
+import {
+  ATS_SEVERITY_ORDER,
+  compareFindingsBySeverity,
+  severityToAlertVariant,
+} from "@/lib/profile/ats/ats-findings-order";
+import { scoreBand } from "@/lib/profile/ats/score-band";
 import type { AtsFinding } from "@/lib/profile/ats/types";
 import type { ProfileCvDto } from "@/lib/profile/repository";
-
-function scoreBand(score: number): {
-  label: string;
-  color: "failure" | "warning" | "success" | "primary";
-} {
-  if (score < 50) {
-    return { label: "Insuffisant", color: "failure" };
-  }
-  if (score < 75) {
-    return { label: "Moyen", color: "warning" };
-  }
-  if (score < 90) {
-    return { label: "Bon", color: "success" };
-  }
-  return { label: "Excellent", color: "primary" };
-}
-
-function severityVariant(
-  severity: AtsFinding["severity"],
-): "failure" | "warning" | "info" {
-  if (severity === "error") return "failure";
-  if (severity === "warning") return "warning";
-  return "info";
-}
-
-const SEVERITY_ORDER: AtsFinding["severity"][] = [
-  "error",
-  "warning",
-  "info",
-];
 
 const SEVERITY_HEADINGS: Record<AtsFinding["severity"], string> = {
   error: "Problèmes bloquants",
@@ -55,12 +31,9 @@ export function AtsDisplay({ cv }: AtsDisplayProps) {
 
   const score = cv.atsScore ?? 0;
   const band = scoreBand(score);
-  const findings = [...cv.atsFindings].sort(
-    (a, b) =>
-      SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity),
-  );
+  const findings = [...cv.atsFindings].sort(compareFindingsBySeverity);
 
-  const grouped = SEVERITY_ORDER.map((severity) => ({
+  const grouped = ATS_SEVERITY_ORDER.map((severity) => ({
     severity,
     items: findings.filter((f) => f.severity === severity),
   })).filter((g) => g.items.length > 0);
@@ -91,7 +64,7 @@ export function AtsDisplay({ cv }: AtsDisplayProps) {
               <ul className="flex flex-col gap-2">
                 {group.items.map((finding) => (
                   <li key={finding.code}>
-                    <Alert variant={severityVariant(finding.severity)}>
+                    <Alert variant={severityToAlertVariant(finding.severity)}>
                       {finding.message}
                     </Alert>
                   </li>
