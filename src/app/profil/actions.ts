@@ -8,6 +8,7 @@ import {
   upsertCvAfterParse,
 } from "@/lib/profile/repository";
 import type { ProfileDto } from "@/lib/profile/repository";
+import { recomputeScoresForAllOffers } from "@/lib/scoring/score-repository";
 
 export type SaveProfileResult =
   | { ok: true }
@@ -30,6 +31,7 @@ export async function saveProfile(
   }
   try {
     await persistProfile(parsed.data);
+    await recomputeScoresForAllOffers();
     return { ok: true };
   } catch {
     return { ok: false, error: "Enregistrement du profil impossible." };
@@ -65,6 +67,7 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
       profile.email,
       profile.phone,
     );
+    await recomputeScoresForAllOffers();
     return { ok: true };
   } catch {
     return { ok: false, error: "Impossible d'enregistrer le CV." };
