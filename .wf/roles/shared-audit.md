@@ -8,7 +8,14 @@ Record in chat: **command → pass/fail → one line** (no full log dump unless 
 
 ## 1. Dependencies & known CVEs
 
-**When:** every milestone ship; any phase that added/updated `package.json` lockfile.
+**When:** only if this phase or milestone **installed or changed** dependencies (`package.json` or any lockfile).  
+**Not** on every verify — skip if no package change.
+
+Detect (one is enough):
+
+- Phase **Decisions**: `dependenciesChanged: yes`
+- A todo in the phase mentioned `npm install` / `pnpm add` / etc. and was checked
+- `git diff --name-only <milestone-branch>...HEAD -- package.json package-lock.json pnpm-lock.yaml yarn.lock bun.lockb` is non-empty
 
 | Package manager | Command |
 |-----------------|--------|
@@ -150,7 +157,7 @@ Quiet on success; on fail → one failing rule + file.
 Before **`/wf-ship`**, run in order (stop on fail):
 
 1. `wflow integrity`
-2. `npm audit` (or `project.yml` `audit:`)
+2. **§1 audit** only if any phase in the milestone changed lockfiles (same detect as above)
 3. `npm run lint` / `test` / `e2e` if milestone touched UI
 4. WCAG block **if** any web phase in milestone
 5. Secrets grep / gitleaks **if** auth or env touched

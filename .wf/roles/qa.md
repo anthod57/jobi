@@ -61,4 +61,6 @@ Follow **`.wf/roles/shared-audit.md`** — do not invent a separate checklist in
 ## Handoff
 
 - All UAT `[x]` → `status: done` → `wflow integrity` → `wflow status`.
-- Summarize in chat: passed count + any open risks (one short paragraph max).
+- **Clean branch:** commit remaining changes (often `.wf/` phase status, UAT checks, `wflow sync` on `MILESTONE.md`).
+- **`npm audit`:** only if §1 applies (packages were installed/changed this phase).
+- Summarize in chat: passed count + commit(s) hash + any open risks (short).
