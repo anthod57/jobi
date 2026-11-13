@@ -16,8 +16,33 @@ branch: milestone/ingestion
 |---|------|------|-------|--------|
 | 01 | 01-drizzle-schema.md | api | M3-01 | done |
 | 02 | 02-credentials-dedup.md | api | M4-01 | done |
-| 03 | 03-api-clients-sync.md | api | M4-02 | discuss |
+| 03 | 03-api-clients-sync.md | api | M4-02 | done |
 | 04 | 04-parametres-ingestion-ui.md | web | M4-03 | discuss |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
