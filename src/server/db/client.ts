@@ -14,7 +14,7 @@ export function getDb(): NodePgDatabase<typeof schema> {
     );
   }
 
-  if (!pool) {
+  if (!db) {
     pool = new Pool({ connectionString: url });
     db = drizzle(pool, { schema });
   }
