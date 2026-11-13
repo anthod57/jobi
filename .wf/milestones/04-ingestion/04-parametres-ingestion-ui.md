@@ -2,7 +2,7 @@
 id: M4-04
 phase: 4
 role: web
-status: review
+status: done
 branch: feat/m4-04-parametres-ingestion-ui
 needs: [M4-03]
 ---
@@ -70,4 +70,4 @@ export async function triggerManualIngestionAction(): Promise<SettingsActionStat
 - [x] (auto) Sidebar navigation includes `/parametres` (« Paramètres ») and links cleanly without 404
 - [x] (human) Keyboard & contrast (shared-audit §4): Tab through `/parametres` and `/offres` controls with visible focus; OS light/dark text and controls remain readable
 - [x] (human) DS only (shared-design-system): `src/components/settings/*`, `src/app/parametres/*`, and `src/app/offres/*` import UI exclusively from `@/components/ui` (no `flowbite-react` or ad hoc styles)
-- [ ] (human) Functional check: saving France Travail/Adzuna keys shows masked `keyHint` without exposing secrets, cron toggle/interval persists, « Importer maintenant » updates `ingestion_runs` table, and `/offres` reflects offer count + configured-source state
+- [x] (human) Functional check: saving France Travail/Adzuna keys shows masked `keyHint` without exposing secrets, cron toggle/interval persists, « Importer maintenant » updates `ingestion_runs` table, and `/offres` reflects offer count + configured-source state
