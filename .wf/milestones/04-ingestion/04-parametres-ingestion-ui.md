@@ -2,7 +2,7 @@
 id: M4-04
 phase: 4
 role: web
-status: doing
+status: review
 branch: feat/m4-04-parametres-ingestion-ui
 needs: [M4-03]
 ---
@@ -60,7 +60,7 @@ export async function triggerManualIngestionAction(): Promise<SettingsActionStat
 - [x] Add `src/components/settings/settings-panel.tsx` — client UI using `@/components/ui` primitives only (`Card`, `Button`, `Input`, `Label`, `Select`, `Checkbox`, `Badge`, `Alert`): France Travail & Adzuna forms (configured status + masked `keyHint` only), cron toggle & `intervalHours` (`6`/`12`/`24`), « Importer maintenant » button, and `ingestion_runs` history table
 - [x] Add `src/app/parametres/page.tsx` — Server Component loading `listCredentialStatuses()`, `IngestionCronConfig`, and `listRecentIngestionRuns(20)`, rendering `SettingsPanel` with title `Paramètres — Jobi`
 - [x] Update `src/app/offres/page.tsx` — display `job_offers` count, « Importer maintenant » action when at least one source is configured, or invitation banner linking to `/parametres` otherwise
-- [ ] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
+- [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
 
 ## UAT
 
