@@ -2,7 +2,7 @@
 id: M4-01
 phase: 1
 role: api
-status: review
+status: done
 branch: feat/m4-01-drizzle-schema
 needs: [M3-01]
 ---
@@ -144,7 +144,7 @@ APP_ENCRYPTION_KEY=replace-with-64-hex-chars-or-32-byte-base64
 
 ## UAT
 
-- [ ] (auto) With `db` up (Docker or host), `npm run db:migrate` succeeds and applies the M4 migration
-- [ ] (auto) After migrate, Postgres has tables `job_offers`, `job_offer_sources`, `ingestion_runs`, `integration_credentials`, enums `offer_source`, `ingestion_run_status`, unique indexes `job_offers_dedup_key_unique` and `job_offer_sources_source_external_id_unique`, and check constraint `job_offers_salary_range_check`
-- [ ] (auto) `.env.example` documents `APP_ENCRYPTION_KEY` without real secrets
-- [ ] (auto) `npx tsc --noEmit` and `npm run build` succeed
+- [x] (auto) With `db` up (Docker or host), `npm run db:migrate` succeeds and applies the M4 migration
+- [x] (auto) After migrate, Postgres has tables `job_offers`, `job_offer_sources`, `ingestion_runs`, `integration_credentials`, enums `offer_source`, `ingestion_run_status`, unique indexes `job_offers_dedup_key_unique` and `job_offer_sources_source_external_id_unique`, and check constraint `job_offers_salary_range_check`
+- [x] (auto) `.env.example` documents `APP_ENCRYPTION_KEY` without real secrets
+- [x] (auto) `npx tsc --noEmit` and `npm run build` succeed
