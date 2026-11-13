@@ -14,16 +14,18 @@ export default async function ProfilPage() {
   const profile = await getProfile();
 
   return (
-    <main className="p-page">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-2xl font-semibold text-secondary-900 dark:text-white">
+    <div className="mx-auto max-w-3xl">
+      <div className="border-b border-secondary-200 pb-4 dark:border-secondary-800">
+        <h1 className="text-2xl font-semibold tracking-tight text-secondary-950 dark:text-white">
           Mon profil
         </h1>
-        <p className="mt-2 text-sm text-secondary-600 dark:text-secondary-400">
+        <p className="mt-1 text-sm text-secondary-600 dark:text-secondary-400">
           Renseignez vos informations pour améliorer le ciblage des offres.
         </p>
+      </div>
+      <div className="mt-section">
         <ProfileForm profile={profile} />
       </div>
-    </main>
+    </div>
   );
 }

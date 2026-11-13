@@ -7,32 +7,35 @@ Single reference for UI in this repo. Feature code uses primitives from `@/compo
 | Layer | Choice |
 |-------|--------|
 | Components | [Flowbite React](https://flowbite-react.com/) (wrapped in `src/components/ui/`) |
-| Styling | Tailwind CSS v4 (`@theme` in `src/app/globals.css`) |
-| Theme overrides | `src/lib/flowbite-theme.ts` via `FlowbiteThemeProvider` |
-| Icons | [`@heroicons/react`](https://heroicons.com/) — only inside primitives (or via documented patterns) |
+| Styling | Tailwind CSS v4 (`@theme inline` + `@custom-variant dark` in `src/app/globals.css`) |
+| Theme overrides | `src/lib/flowbite-theme.ts` via `FlowbiteThemeProvider` + `ThemeModeScript` |
+| Icons | [`@heroicons/react`](https://heroicons.com/) (`/24/outline` or `/24/solid`) |
 
-## 2. Tokens
+## 2. Tokens & Dark Mode
 
 Semantic palettes live in `src/app/globals.css` under `@theme inline`:
 
-- **primary** — primary actions, default buttons
-- **secondary** — neutral gray scale
+- **primary** — Indigo accent (`primary-600` for primary actions, active icons)
+- **secondary** — Zinc neutral scale (`secondary-50`..`secondary-950` for canvas, surfaces, `1px` borders, text)
 - **success**, **warning**, **failure** — status and validation
 
-Flowbite component class overrides (button, alert, badge) are in `src/lib/flowbite-theme.ts`. Do not duplicate those strings in feature files.
+Light/dark mode is controlled by `.dark` on `<html>`, initialized without FOUC via `ThemeModeScript` in `src/app/layout.tsx` and toggled by `ThemeToggle` in `AppShell`.
 
-**Forbidden:** arbitrary `#hex` or one-off `text-zinc-*` in features when a semantic token exists — use `text-secondary-*`, `text-success-*`, etc., or Flowbite variant props on primitives.
+Flowbite component class overrides live in `src/lib/flowbite-theme.ts`. Do not duplicate those strings in feature files.
 
-## 3. Typography & spacing
+**Forbidden:** arbitrary `#hex` or one-off `text-zinc-*` in features when a semantic token exists — use `text-secondary-*`, `border-secondary-*`, `text-success-*`, etc., or Flowbite variant props on primitives.
+
+## 3. Typography & Spacing
 
 ### Typography
 
 | Role | Tailwind classes | Use |
 |------|------------------|-----|
-| Page title (in `Card`) | `text-xl font-semibold` (via `Card` `title`) | Main heading on a surface |
-| Lead / subtitle | `text-lg text-secondary-600 dark:text-secondary-400` | Supporting line under title |
-| Body | `text-base` | Default copy |
-| Small / meta | `text-sm text-secondary-500` | Hints, captions |
+| Page heading (`h1`) | `text-2xl font-semibold tracking-tight text-secondary-950 dark:text-white` | Main page title |
+| Card title (`Card`) | `text-xl font-semibold` (via `Card` `title`) | Section heading on a surface |
+| Lead / subtitle | `text-sm text-secondary-600 dark:text-secondary-400` | Supporting line under heading |
+| Body | `text-base` or `text-sm` | Default copy |
+| Small / meta | `text-xs text-secondary-500` | Hints, captions, footer |
 
 Fonts: Geist Sans (`font-sans`), Geist Mono (`font-mono`) from `layout.tsx`.
 
@@ -40,60 +43,45 @@ Fonts: Geist Sans (`font-sans`), Geist Mono (`font-mono`) from `layout.tsx`.
 
 | Token | CSS variable | Tailwind | Use |
 |-------|--------------|----------|-----|
-| Page padding | `--spacing-page` (2rem) | `p-page` | Outer padding on `<main>` |
-| Section gap | `--spacing-section` (1.5rem) | `gap-section`, `mt-section` | Between major blocks |
-| Stack gap | `--spacing-stack` (1rem) | `gap-stack`, `mt-stack` | Related controls / alerts in a card |
+| Page padding | `--spacing-page` (`1.5rem`) | `p-page` | Outer padding on `<main>` in `AppShell` |
+| Section gap | `--spacing-section` (`1.5rem`) | `gap-section`, `space-y-section`, `mt-section` | Between major blocks |
+| Stack gap | `--spacing-stack` (`1rem`) | `gap-stack`, `mt-stack` | Related controls / alerts in a card |
 
-## 4. Primitives
+## 4. App Shell & Primitives
 
-Import from **`@/components/ui`**:
+All pages are wrapped by `AppShell` (`src/components/layout/app-shell.tsx`) in `src/app/layout.tsx`:
+- **Sidebar**: fixed on desktop (`lg:block`), accessible drawer on mobile.
+- **Header**: sticky top bar with mobile menu toggle, contextual page label, `ThemeToggle`, and profile `Dropdown` (`Avatar`).
+- **Main**: `<main id="main-content" className="flex-1 p-page">` with `max-w-6xl` container.
+- **Footer**: subtle single-row footer.
+
+Import primitives from **`@/components/ui`**:
 
 ```ts
-import { Alert, Button, Card, Input } from "@/components/ui";
+import {
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Dropdown,
+  FileInput,
+  Footer,
+  Input,
+  Label,
+  Navbar,
+  Select,
+  Sidebar,
+  ThemeToggle,
+  Tooltip,
+} from "@/components/ui";
 ```
 
-### Button
+## 5. Rules & Anti AI Slop
 
-Flowbite `Button` wrapper. Supports Flowbite `color`, `size`, `disabled`, plus `isProcessing` (shows spinner).
-
-```tsx
-<Button color="primary">Enregistrer</Button>
-<Button disabled>Indisponible</Button>
-<Button isProcessing>Envoi…</Button>
-```
-
-### Input
-
-Flowbite `TextInput`. Use `color="failure"` for validation errors.
-
-```tsx
-<Input placeholder="E-mail" />
-<Input color="failure" placeholder="Champ invalide" />
-```
-
-### Card
-
-Flowbite `Card` with optional `title`.
-
-```tsx
-<Card title="Jobi">
-  <p className="text-lg text-secondary-600">Sous-titre</p>
-</Card>
-```
-
-### Alert
-
-Semantic `variant`: `info` | `success` | `warning` | `failure` (default icons from Heroicons).
-
-```tsx
-<Alert variant="success">Base de données : OK</Alert>
-<Alert variant="failure">Base de données : indisponible</Alert>
-```
-
-## 5. Rules
-
-1. **Features** import UI only from `@/components/ui` — never `flowbite-react` in `src/app` (except layout/theme wiring from bootstrap).
+1. **Features** import UI only from `@/components/ui` — never `flowbite-react` in `src/app` (except `ThemeModeScript` in `layout.tsx` and `FlowbiteThemeProvider`).
 2. **No raw `<input className="…">`** in features — use `Input`.
-3. **Status messages** use `Alert` with the right `variant`.
-4. **Icons:** prefer defaults on `Alert`; for custom UI, `@heroicons/react/24/outline` or `/24/solid` as in primitives.
-5. **Dark mode:** use paired `dark:` classes with semantic tokens, not separate hard-coded palettes.
+3. **Status messages** use `Alert` or `Badge` with the right semantic `variant`/`color`.
+4. **Dark mode:** always pair `dark:` classes with semantic tokens.
+5. **Anti AI Slop:** no decorative gradients, no gratuitous `backdrop-blur` glassmorphism, no heavy `shadow-xl` cards (prefer crisp `1px` `border-secondary-200 dark:border-secondary-800`), and no fake KPIs or charts on placeholder screens.

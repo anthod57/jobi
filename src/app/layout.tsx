@@ -1,6 +1,8 @@
+import { ThemeModeScript } from "flowbite-react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { AppShell } from "@/components/layout/app-shell";
 import { FlowbiteThemeProvider } from "@/components/providers/flowbite-theme-provider";
 
 import "./globals.css";
@@ -25,10 +27,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <ThemeModeScript />
+      </head>
       <body className="flex min-h-full flex-col">
-        <FlowbiteThemeProvider>{children}</FlowbiteThemeProvider>
+        <FlowbiteThemeProvider>
+          <AppShell>{children}</AppShell>
+        </FlowbiteThemeProvider>
       </body>
     </html>
   );
