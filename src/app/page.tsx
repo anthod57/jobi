@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Alert, Card } from "@/components/ui";
 
 import { getHealthStatus } from "@/lib/health";
@@ -20,6 +22,14 @@ export default async function Home() {
         <Alert variant={dbOk ? "success" : "failure"} className="mt-stack">
           {dbLabel}
         </Alert>
+        <p className="mt-stack">
+          <Link
+            href="/profil"
+            className="font-medium text-primary-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400"
+          >
+            Mon profil
+          </Link>
+        </p>
       </Card>
     </main>
   );
