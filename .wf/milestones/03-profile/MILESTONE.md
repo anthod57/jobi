@@ -15,7 +15,7 @@ branch: milestone/03-profile
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-drizzle-schema.md | api | M1-02 | done |
-| 02 | 02-profile-server.md | api | M3-01 | planned |
+| 02 | 02-profile-server.md | api | M3-01 | done |
 | 03 | 03-profile-ui.md | web | M2-03, M3-02 | planned |
 
 ## Decisions (jalon)
