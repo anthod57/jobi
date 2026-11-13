@@ -24,7 +24,7 @@ Default for all WF skills: **short, clear, direct**. Expand only when the user a
 | setup / discuss | Question → short synthesis → write file |
 | plan | Confirm todos count; no essay |
 | execute | Progress: `todo n/m done` + blocker if any |
-| verify | One UAT prompt; `pass` / fix note |
+| verify | One UAT item; `(auto)` → probe + evidence; `(human)` → `pass` / fix note |
 | CLI | Paste command output, not a paragraph about it |
 
 ## When to lengthen
