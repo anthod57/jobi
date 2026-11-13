@@ -1,7 +1,7 @@
 ---
 id: M2
 title: Design system (Flowbite + primitives)
-status: active
+status: done
 branch: milestone/design-system
 ---
 # M2 — Design system
@@ -16,7 +16,21 @@ branch: milestone/design-system
 |---|------|------|-------|--------|
 | 01 | 01-flowbite-theme.md | web | — | done |
 | 02 | 02-ui-primitives.md | web | M2-01 | done |
-| 03 | 03-design-system-doc.md | web | M2-02 | todo |
+| 03 | 03-design-system-doc.md | web | M2-02 | done |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

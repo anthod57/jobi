@@ -2,9 +2,9 @@
 id: M2-03
 phase: 3
 role: web
-status: todo
+status: done
 branch: feat/m2-03-design-system-doc
-needs: ["M2-02"]
+needs: [M2-02]
 ---
 # Design system reference + home shell on DS
 
@@ -35,13 +35,13 @@ needs: ["M2-02"]
 
 ## Todos
 
-- [ ] Write `docs/design-system.md`
-- [ ] Refactor home page to DS primitives
-- [ ] Fix `layout.tsx` metadata description
-- [ ] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`
+- [x] Write `docs/design-system.md`
+- [x] Refactor home page to DS primitives
+- [x] Fix `layout.tsx` metadata description
+- [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`
 
 ## UAT
 
-- [ ] `docker compose up` (or local dev) → `/` shows Card + Alert; DB message readable in FR
-- [ ] Spot-check: `src/app/page.tsx` imports UI only from `@/components/ui`
-- [ ] `docs/design-system.md` exists and lists all four primitives
+- [x] `docker compose up` (or local dev) → `/` shows Card + Alert; DB message readable in FR
+- [x] Spot-check: `src/app/page.tsx` imports UI only from `@/components/ui`
+- [x] `docs/design-system.md` exists and lists all four primitives
