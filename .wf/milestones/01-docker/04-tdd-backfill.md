@@ -2,7 +2,7 @@
 id: M1-04
 phase: 4
 role: qa
-status: planned
+status: done
 branch: feat/m1-04-tdd-backfill
 needs: [M1-03]
 ---
@@ -18,9 +18,9 @@ needs: [M1-03]
 
 - [x] Test: `src/lib/db.test.ts` — échoue si guard absent ; passe après guard
 - [x] Vérifier `src/lib/health.test.ts` vert avec `npm test`
-- [ ] Test: `npm run build`
+- [x] Test: `npm run build`
 
 ## UAT
 
-- [ ] (auto) `npm test` — tous verts
-- [ ] (auto) `npm run build`
+- [x] (auto) `npm test` — tous verts
+- [x] (auto) `npm run build`

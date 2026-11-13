@@ -2,7 +2,7 @@
 id: M2-04
 phase: 4
 role: qa
-status: doing
+status: done
 branch: feat/m2-04-tdd-backfill
 needs: [M2-03]
 ---
@@ -17,9 +17,9 @@ needs: [M2-03]
 ## Todos
 
 - [x] Test: `src/lib/flowbite-theme.test.ts` — `flowbiteTheme` expose button/alert/badge sémantiques
-- [ ] Test: `npm test` && `npm run build`
+- [x] Test: `npm test` && `npm run build`
 
 ## UAT
 
-- [ ] (auto) `npm test`
-- [ ] (auto) `npm run build`
+- [x] (auto) `npm test`
+- [x] (auto) `npm run build`
