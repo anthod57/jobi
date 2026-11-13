@@ -2,9 +2,9 @@
 id: M2-02
 phase: 2
 role: web
-status: todo
+status: done
 branch: feat/m2-02-ui-primitives
-needs: ["M2-01"]
+needs: [M2-01]
 ---
 # UI primitives (Button, Input, Card, Alert)
 
@@ -38,11 +38,11 @@ Optional colocated smoke test: `src/components/ui/button.test.tsx` only if execu
 
 ## Todos
 
-- [ ] Implement four primitives under `src/components/ui/`
-- [ ] Add barrel `index.ts`
-- [ ] Test: `npm run build` and `npx tsc --noEmit`
+- [x] Implement four primitives under `src/components/ui/`
+- [x] Add barrel `index.ts`
+- [x] Test: `npm run build` and `npx tsc --noEmit`
 
 ## UAT
 
-- [ ] Temporary dev-only check (executor may use a throwaway route or Storybook-less import in a server test page **deleted before phase close**): each primitive renders default, disabled, and error/alert variant without console errors
-- [ ] Grep: no `flowbite-react` imports outside `src/components/ui/` and `src/app/layout.tsx` / theme file
+- [x] Temporary dev-only check (executor may use a throwaway route or Storybook-less import in a server test page **deleted before phase close**): each primitive renders default, disabled, and error/alert variant without console errors
+- [x] Grep: no `flowbite-react` imports outside `src/components/ui/` and `src/app/layout.tsx` / theme file

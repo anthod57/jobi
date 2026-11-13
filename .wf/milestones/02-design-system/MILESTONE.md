@@ -15,8 +15,20 @@ branch: milestone/design-system
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-flowbite-theme.md | web | — | done |
-| 02 | 02-ui-primitives.md | web | M2-01 | todo |
+| 02 | 02-ui-primitives.md | web | M2-01 | done |
 | 03 | 03-design-system-doc.md | web | M2-02 | todo |
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
