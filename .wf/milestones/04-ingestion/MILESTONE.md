@@ -1,7 +1,7 @@
 ---
 id: M4
 title: Ingestion offres + dédup
-status: draft
+status: active
 branch: milestone/ingestion
 ---
 # M4 — Ingestion
@@ -14,6 +14,17 @@ branch: milestone/ingestion
 
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
+| 01 | 01-drizzle-schema.md | api | M3-01 | review |
+
+
+
+
+
+
+
+
+
+
 
 
 
