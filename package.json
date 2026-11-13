@@ -10,7 +10,8 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "test": "vitest run"
+    "test": "vitest run",
+    "docker:rebuild": "docker compose up -d --build"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
