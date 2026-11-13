@@ -4,8 +4,7 @@ phase: 3
 role: api
 status: discuss
 branch: feat/m1-03-health-home
-needs:
-  - M1-02
+needs: 
 ---
 # Health API + welcome shell
 

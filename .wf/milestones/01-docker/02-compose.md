@@ -2,10 +2,9 @@
 id: M1-02
 phase: 2
 role: ops
-status: discuss
+status: review
 branch: feat/m1-02-compose
-needs:
-  - M1-01
+needs: 
 ---
 # Docker Compose: app + SQL
 
@@ -19,6 +18,17 @@ needs:
 - Named volume **`jobi_pgdata`** → `/var/lib/postgresql/data`.
 - App **`depends_on`** `db` with `condition: service_healthy`.
 - Health route contract is **M1-03**; this phase only documents that `app` healthcheck targets `/api/health`.
+- **M1-02 verify:** `db` healthy + `app` image builds and container starts; app Compose healthcheck turns green only after **M1-03** ships `GET /api/health`.
+- **`.env.example`** committed; root `.gitignore` keeps `.env*` but adds **`!.env.example`**.
+
+## Structure
+
+| Path | Purpose |
+|------|---------|
+| `docker-compose.yml` | Services `db` + `app` |
+| `Dockerfile` | Multi-stage Next standalone image |
+| `.dockerignore` | Slim build context |
+| `.env.example` | Committed template (copy to `.env` locally) |
 
 ## Contract
 
@@ -104,10 +114,42 @@ ENV PORT=3000
 CMD ["node", "server.js"]
 ```
 
-**Next.js** must set `output: "standalone"` in `next.config.ts` (todo in execute, or prep in M1-01 if decided — add Decision note).
+**`.dockerignore`** (minimum):
 
-Decision add: **`next.config` includes `output: "standalone"`** for the Docker image (executor updates in M1-01 or M1-02).
+```
+.git
+.wf
+node_modules
+.next
+npm-debug.log*
+Dockerfile
+docker-compose.yml
+.env*
+!.env.example
+```
+
+**`.gitignore`** — after existing `.env*` block, add:
+
+```
+!.env.example
+```
+
+(Standalone `output` is **M1-01** — do not change `next.config.ts` here except if missing.)
 
 ## Todos
 
+- [x] Add `.env.example` at repo root exactly as Contract (local Docker creds + `DATABASE_URL` host `db`)
+- [x] Add `docker-compose.yml` at repo root exactly as Contract (`db` postgres:16-alpine, `app` build, `jobi_pgdata`, healthchecks, `depends_on` healthy)
+- [x] Add `Dockerfile` at repo root exactly as Contract (node:22-alpine deps/builder/runner, standalone artifacts, `curl` in runner)
+- [x] Add `.dockerignore` at repo root exactly as Contract
+- [x] Patch `.gitignore`: after `.env*` rule, add `!.env.example` per Contract
+- [x] Confirm `next.config.ts` has `output: "standalone"`; add only if missing (M1-01 Contract — no other `next.config` edits)
+- [x] Test: `docker compose build app` completes successfully from clean context
+- [x] Test: `docker compose up db -d` then `docker compose ps` shows `db` **healthy**
+
 ## UAT
+
+- [ ] Copy `.env.example` to `.env`; run `docker compose up db -d` — `docker compose ps` shows `db` **healthy** and port **5432** published on host
+- [ ] Run `docker compose up --build -d` (both services) — `docker compose ps` shows `app` **Up** (running); image build finishes without error
+- [ ] `app` Compose healthcheck may stay **unhealthy** until M1-03 ships `GET /api/health` — expected; note status if verifying manually
+- [ ] Optional dev path: with only `db` up, `npm run dev` on host works when `DATABASE_URL` uses `localhost:5432` (no requirement to change app code this phase)

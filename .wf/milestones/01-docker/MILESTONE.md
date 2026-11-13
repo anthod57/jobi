@@ -15,8 +15,23 @@ branch: milestone/docker
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-scaffold.md | web | — | done |
-| 02 | 02-compose.md | ops | — | discuss |
+| 02 | 02-compose.md | ops | — | review |
 | 03 | 03-health-home.md | api | — | discuss |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
