@@ -2,7 +2,7 @@
 id: M4-02
 phase: 2
 role: api
-status: review
+status: done
 branch: feat/m4-02-credentials-dedup
 needs: [M4-01]
 ---
@@ -136,7 +136,7 @@ export async function upsertOfferWithSource(
 
 ## UAT
 
-- [ ] (auto) `npm test` passe la suite `src/lib/ingestion/*.test.ts` (round-trip AES-256-GCM + rejet clé invalide, masquage `keyHint`, normalisation/SHA-256 `computeDedupKey`, et branches `inserted` / `updated` / `deduped` de `upsertOfferWithSource`)
-- [ ] (auto) `listCredentialStatuses()` retourne uniquement `{ provider, configured, keyHint, updatedAt }` sans exposer de secret déchiffré ni `encryptedPayload`
-- [ ] (auto) `APP_ENCRYPTION_KEY` manquante ou de longueur invalide lève une erreur explicite avant toute écriture en base, sans logger de secret
-- [ ] (auto) `npx tsc --noEmit` et `npm run build` passent sans erreur avec les 4 modules du Contract en place
+- [x] (auto) `npm test` passe la suite `src/lib/ingestion/*.test.ts` (round-trip AES-256-GCM + rejet clé invalide, masquage `keyHint`, normalisation/SHA-256 `computeDedupKey`, et branches `inserted` / `updated` / `deduped` de `upsertOfferWithSource`)
+- [x] (auto) `listCredentialStatuses()` retourne uniquement `{ provider, configured, keyHint, updatedAt }` sans exposer de secret déchiffré ni `encryptedPayload`
+- [x] (auto) `APP_ENCRYPTION_KEY` manquante ou de longueur invalide lève une erreur explicite avant toute écriture en base, sans logger de secret
+- [x] (auto) `npx tsc --noEmit` et `npm run build` passent sans erreur avec les 4 modules du Contract en place
