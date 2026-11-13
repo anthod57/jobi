@@ -119,8 +119,45 @@ describe("fetchFranceTravailOffers", () => {
       fetchFranceTravailOffers(
         { clientId: "ft-id", clientSecret: "top-secret-value" },
         { keywords: "dev" },
-        fetchMock,
-      ),
+      fetchMock,
+    ),
     ).rejects.toThrow(/France Travail OAuth failed \(401\)/);
+  });
+
+  it("paginates ranges until fewer than 50 offers are returned", async () => {
+    const page1 = Array.from({ length: 50 }, (_, i) => ({
+      id: `FT-${i}`,
+      intitule: `Poste ${i}`,
+    }));
+    const page2 = [{ id: "FT-50", intitule: "Poste 50" }];
+
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ access_token: "ft-token" }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ resultats: page1 }), { status: 206 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ resultats: page2 }), { status: 200 }),
+      );
+
+    const offers = await fetchFranceTravailOffers(
+      { clientId: "ft-id", clientSecret: "ft-secret" },
+      { keywords: "dev", maxDaysOld: 30 },
+      fetchMock,
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(
+      new URL(String(fetchMock.mock.calls[1][0])).searchParams.get("range"),
+    ).toBe("0-49");
+    expect(
+      new URL(String(fetchMock.mock.calls[2][0])).searchParams.get("range"),
+    ).toBe("50-99");
+    expect(offers).toHaveLength(51);
   });
 });

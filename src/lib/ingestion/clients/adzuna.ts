@@ -4,7 +4,9 @@ import type {
 } from "../offer-repository";
 import type { IngestionSearchQuery } from "../search-query";
 
-const ADZUNA_SEARCH_URL = "https://api.adzuna.com/v1/api/jobs/fr/search/1";
+const ADZUNA_SEARCH_BASE_URL = "https://api.adzuna.com/v1/api/jobs/fr/search";
+const ADZUNA_PAGE_SIZE = 50;
+const ADZUNA_MAX_PAGES = 20;
 const HTTP_TIMEOUT_MS = 15_000;
 
 type AdzunaRawOffer = {
@@ -82,26 +84,40 @@ export async function fetchAdzunaOffers(
   query: IngestionSearchQuery,
   fetchImpl: typeof fetch = fetch,
 ): Promise<NormalizedOfferInput[]> {
-  const url = new URL(ADZUNA_SEARCH_URL);
-  url.searchParams.set("app_id", creds.appId);
-  url.searchParams.set("app_key", creds.appKey);
-  url.searchParams.set("results_per_page", "50");
-  if (query.keywords.trim()) {
-    url.searchParams.set("what", query.keywords.trim());
-  }
-  if (query.maxDaysOld !== undefined) {
-    url.searchParams.set("max_days_old", String(query.maxDaysOld));
+  const allOffers: NormalizedOfferInput[] = [];
+
+  for (let page = 1; page <= ADZUNA_MAX_PAGES; page += 1) {
+    const url = new URL(`${ADZUNA_SEARCH_BASE_URL}/${page}`);
+    url.searchParams.set("app_id", creds.appId);
+    url.searchParams.set("app_key", creds.appKey);
+    url.searchParams.set("results_per_page", String(ADZUNA_PAGE_SIZE));
+    if (query.keywords.trim()) {
+      url.searchParams.set("what", query.keywords.trim());
+    }
+    if (query.maxDaysOld !== undefined) {
+      url.searchParams.set("max_days_old", String(query.maxDaysOld));
+    }
+
+    const res = await fetchImpl(url.toString(), {
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      throw new Error(`Adzuna search failed (${res.status})`);
+    }
+
+    const body = (await res.json()) as { results?: AdzunaRawOffer[] };
+    const rawOffers = body.results ?? [];
+    for (const raw of rawOffers) {
+      const normalized = normalizeOffer(raw);
+      if (normalized) {
+        allOffers.push(normalized);
+      }
+    }
+
+    if (rawOffers.length < ADZUNA_PAGE_SIZE) {
+      break;
+    }
   }
 
-  const res = await fetchImpl(url.toString(), {
-    signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-  });
-  if (!res.ok) {
-    throw new Error(`Adzuna search failed (${res.status})`);
-  }
-
-  const body = (await res.json()) as { results?: AdzunaRawOffer[] };
-  return (body.results ?? [])
-    .map(normalizeOffer)
-    .filter((offer): offer is NormalizedOfferInput => offer !== null);
+  return allOffers;
 }

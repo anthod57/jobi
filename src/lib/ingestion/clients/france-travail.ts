@@ -10,6 +10,8 @@ const FT_SEARCH_URL =
   "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search";
 const FT_SCOPE = "api_offresdemploiv2 o2dsoffre";
 const FT_BUCKETS = [1, 3, 7, 14, 31] as const;
+const FT_PAGE_SIZE = 50;
+const FT_MAX_PAGES = 20;
 const HTTP_TIMEOUT_MS = 15_000;
 
 type FranceTravailRawOffer = {
@@ -113,34 +115,50 @@ export async function fetchFranceTravailOffers(
     throw new Error("France Travail OAuth response missing access_token");
   }
 
-  const url = new URL(FT_SEARCH_URL);
-  url.searchParams.set("range", "0-49");
-  if (query.keywords.trim()) {
-    url.searchParams.set("motsCles", query.keywords.trim());
-  }
-  if (query.maxDaysOld !== undefined) {
-    url.searchParams.set(
-      "publieeDepuis",
-      String(mapPublieeDepuis(query.maxDaysOld)),
-    );
+  const allOffers: NormalizedOfferInput[] = [];
+
+  for (let page = 0; page < FT_MAX_PAGES; page += 1) {
+    const start = page * FT_PAGE_SIZE;
+    const end = start + FT_PAGE_SIZE - 1;
+    const url = new URL(FT_SEARCH_URL);
+    url.searchParams.set("range", `${start}-${end}`);
+    if (query.keywords.trim()) {
+      url.searchParams.set("motsCles", query.keywords.trim());
+    }
+    if (query.maxDaysOld !== undefined) {
+      url.searchParams.set(
+        "publieeDepuis",
+        String(mapPublieeDepuis(query.maxDaysOld)),
+      );
+    }
+
+    const searchRes = await fetchImpl(url.toString(), {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+    });
+
+    if (searchRes.status === 204) {
+      break;
+    }
+    if (!searchRes.ok) {
+      throw new Error(`France Travail search failed (${searchRes.status})`);
+    }
+
+    const body = (await searchRes.json()) as {
+      resultats?: FranceTravailRawOffer[];
+    };
+    const rawOffers = body.resultats ?? [];
+    for (const raw of rawOffers) {
+      const normalized = normalizeOffer(raw);
+      if (normalized) {
+        allOffers.push(normalized);
+      }
+    }
+
+    if (rawOffers.length < FT_PAGE_SIZE) {
+      break;
+    }
   }
 
-  const searchRes = await fetchImpl(url.toString(), {
-    headers: { Authorization: `Bearer ${tokenData.access_token}` },
-    signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-  });
-
-  if (searchRes.status === 204) {
-    return [];
-  }
-  if (!searchRes.ok) {
-    throw new Error(`France Travail search failed (${searchRes.status})`);
-  }
-
-  const body = (await searchRes.json()) as {
-    resultats?: FranceTravailRawOffer[];
-  };
-  return (body.resultats ?? [])
-    .map(normalizeOffer)
-    .filter((offer): offer is NormalizedOfferInput => offer !== null);
+  return allOffers;
 }

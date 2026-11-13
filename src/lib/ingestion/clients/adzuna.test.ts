@@ -69,8 +69,40 @@ describe("fetchAdzunaOffers", () => {
       fetchAdzunaOffers(
         { appId: "adz-id", appKey: "secret-adz-key" },
         { keywords: "" },
-        fetchMock,
+      fetchMock,
       ),
     ).rejects.toThrow(/Adzuna search failed \(403\)/);
+  });
+
+  it("paginates search pages until fewer than 50 offers are returned", async () => {
+    const page1 = Array.from({ length: 50 }, (_, i) => ({
+      id: `AZ-${i}`,
+      title: `Job ${i}`,
+    }));
+    const page2 = [{ id: "AZ-50", title: "Job 50" }];
+
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ results: page1 }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ results: page2 }), { status: 200 }),
+      );
+
+    const offers = await fetchAdzunaOffers(
+      { appId: "adz-id", appKey: "adz-key" },
+      { keywords: "dev", maxDaysOld: 30 },
+      fetchMock,
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(new URL(String(fetchMock.mock.calls[0][0])).pathname).toBe(
+      "/v1/api/jobs/fr/search/1",
+    );
+    expect(new URL(String(fetchMock.mock.calls[1][0])).pathname).toBe(
+      "/v1/api/jobs/fr/search/2",
+    );
+    expect(offers).toHaveLength(51);
   });
 });
