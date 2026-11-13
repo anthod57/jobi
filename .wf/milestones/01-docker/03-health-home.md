@@ -2,9 +2,9 @@
 id: M1-03
 phase: 3
 role: api
-status: discuss
+status: done
 branch: feat/m1-03-health-home
-needs: 
+needs: []
 ---
 # Health API + welcome shell
 
@@ -89,4 +89,18 @@ export async function GET() {
 
 ## Todos
 
+- [x] Add `pg` and `@types/pg` via npm — `package.json` and lockfile list both
+- [x] Add `src/lib/db.ts` exactly as Contract (`Pool`, `DATABASE_URL` guard)
+- [x] Add `src/lib/health.ts` exactly as Contract (`getHealthStatus`, import `pool` from `./db`)
+- [x] Add `src/app/api/health/route.ts` exactly as Contract (`GET` → JSON + 200/503)
+- [x] Replace `src/app/page.tsx` per Contract (heading **Jobi**, French subtitle, DB status from `getHealthStatus()` server-side)
+- [x] Test: `DATABASE_URL` set and `db` reachable → `npm run build` succeeds
+- [x] Test: `db` up → `curl -sf http://localhost:3000/api/health` exits 0; body has `"status":"ok"` and `checks.database` **ok**
+
 ## UAT
+
+- [x] Copy `.env.example` → `.env`; `docker compose up --build -d` — `docker compose ps` shows **db** and **app** healthy
+- [x] Browser http://localhost:3000 — heading **Jobi**, line *Agrégateur d’offres d’emploi — instance locale.*, status **Base de données : OK** with full stack up
+- [x] http://localhost:3000/api/health — JSON `status` **ok**, `checks.database` **ok**, HTTP **200**
+- [x] Stop `db` only (`docker compose stop db`); refresh `/` — **Base de données : indisponible**; `/api/health` returns HTTP **503** and `status` **degraded**
+- [x] `npm audit --audit-level=high` — pass (shared-audit §1)
