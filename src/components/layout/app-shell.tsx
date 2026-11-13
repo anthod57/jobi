@@ -3,6 +3,7 @@
 import {
   Bars3Icon,
   BriefcaseIcon,
+  Cog6ToothIcon,
   DocumentTextIcon,
   HomeIcon,
   UserCircleIcon,
@@ -40,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/offres", label: "Offres", icon: BriefcaseIcon },
   { href: "/candidatures", label: "Candidatures", icon: DocumentTextIcon },
   { href: "/profil", label: "Mon profil", icon: UserCircleIcon },
+  { href: "/parametres", label: "Paramètres", icon: Cog6ToothIcon },
 ];
 
 function isRouteActive(pathname: string, href: string): boolean {

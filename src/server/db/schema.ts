@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   date,
   integer,
@@ -121,3 +122,97 @@ export const profileCv = pgTable(
     ),
   ],
 );
+
+export const offerSourceEnum = pgEnum("offer_source", [
+  "france_travail",
+  "adzuna",
+]);
+
+export const ingestionRunStatusEnum = pgEnum("ingestion_run_status", [
+  "running",
+  "success",
+  "partial",
+  "error",
+]);
+
+export const jobOffers = pgTable(
+  "job_offers",
+  {
+    id: serial("id").primaryKey(),
+    dedupKey: varchar("dedup_key", { length: 64 }).notNull(),
+    title: varchar("title", { length: 300 }).notNull(),
+    company: varchar("company", { length: 200 }).notNull().default(""),
+    locationLabel: varchar("location_label", { length: 200 })
+      .notNull()
+      .default(""),
+    department: varchar("department", { length: 20 }),
+    contractType: contractTypeEnum("contract_type"),
+    remoteMode: remotePreferenceEnum("remote_mode"),
+    salaryMin: integer("salary_min"),
+    salaryMax: integer("salary_max"),
+    salaryText: varchar("salary_text", { length: 200 }),
+    description: text("description").notNull().default(""),
+    publishedAt: timestamp("published_at", { withTimezone: true, mode: "date" }),
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    isActive: boolean("is_active").notNull().default(true),
+  },
+  (table) => [
+    uniqueIndex("job_offers_dedup_key_unique").on(table.dedupKey),
+    check(
+      "job_offers_salary_range_check",
+      sql`${table.salaryMin} IS NULL OR ${table.salaryMax} IS NULL OR ${table.salaryMin} <= ${table.salaryMax}`,
+    ),
+  ],
+);
+
+export const jobOfferSources = pgTable(
+  "job_offer_sources",
+  {
+    id: serial("id").primaryKey(),
+    offerId: integer("offer_id")
+      .notNull()
+      .references(() => jobOffers.id, { onDelete: "cascade" }),
+    source: offerSourceEnum("source").notNull(),
+    externalId: varchar("external_id", { length: 160 }).notNull(),
+    url: text("url").notNull().default(""),
+    rawPayload: jsonb("raw_payload").notNull().default(sql`'{}'::jsonb`),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("job_offer_sources_source_external_id_unique").on(
+      table.source,
+      table.externalId,
+    ),
+  ],
+);
+
+export const ingestionRuns = pgTable("ingestion_runs", {
+  id: serial("id").primaryKey(),
+  source: offerSourceEnum("source").notNull(),
+  status: ingestionRunStatusEnum("status").notNull(),
+  fetchedCount: integer("fetched_count").notNull().default(0),
+  insertedCount: integer("inserted_count").notNull().default(0),
+  updatedCount: integer("updated_count").notNull().default(0),
+  dedupedCount: integer("deduped_count").notNull().default(0),
+  errorMessage: text("error_message"),
+  startedAt: timestamp("started_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+  finishedAt: timestamp("finished_at", { withTimezone: true, mode: "date" }),
+});
+
+export const integrationCredentials = pgTable("integration_credentials", {
+  provider: varchar("provider", { length: 40 }).primaryKey(),
+  encryptedPayload: text("encrypted_payload").notNull(),
+  keyHint: varchar("key_hint", { length: 32 }).notNull().default(""),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+});
