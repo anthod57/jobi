@@ -1,7 +1,7 @@
 ---
 id: T-004
 type: test-gap
-status: open
+status: done
 source: src/server/db/schema.ts
 created: 2026-11-13
 ---

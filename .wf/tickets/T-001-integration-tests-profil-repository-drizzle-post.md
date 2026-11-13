@@ -1,7 +1,7 @@
 ---
 id: T-001
 type: test-gap
-status: open
+status: done
 source: src/lib/profile/repository.ts
 created: 2026-11-13
 ---

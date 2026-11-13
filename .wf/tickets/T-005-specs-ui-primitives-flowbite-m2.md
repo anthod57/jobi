@@ -1,7 +1,7 @@
 ---
 id: T-005
 type: test-gap
-status: open
+status: done
 source: src/components/ui/button.tsx
 created: 2026-11-13
 ---

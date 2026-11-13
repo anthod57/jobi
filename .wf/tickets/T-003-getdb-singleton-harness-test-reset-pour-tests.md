@@ -1,7 +1,7 @@
 ---
 id: T-003
 type: test-gap
-status: open
+status: done
 source: src/server/db/client.ts
 created: 2026-11-13
 ---

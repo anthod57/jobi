@@ -21,3 +21,12 @@ export function getDb(): NodePgDatabase<typeof schema> {
 
   return db;
 }
+
+/** Tears down the Drizzle singleton so tests can re-init (parallel-safe per worker). */
+export async function resetDbForTests(): Promise<void> {
+  if (pool) {
+    await pool.end();
+  }
+  pool = undefined;
+  db = undefined;
+}

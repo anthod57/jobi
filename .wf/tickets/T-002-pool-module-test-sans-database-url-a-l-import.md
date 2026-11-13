@@ -1,7 +1,7 @@
 ---
 id: T-002
 type: test-gap
-status: open
+status: done
 source: src/lib/db.ts
 created: 2026-11-13
 ---
