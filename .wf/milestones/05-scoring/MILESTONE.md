@@ -1,7 +1,7 @@
 ---
 id: M5
 title: Liste offres + scoring
-status: active
+status: done
 branch: milestone/scoring
 ---
 # M5 — Scoring
@@ -15,7 +15,32 @@ branch: milestone/scoring
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-scoring-schema-engine.md | api | M3-02, M4-03 | done |
-| 02 | 02-offres-ui.md | web | M5-01, M2-03 | planned |
+| 02 | 02-offres-ui.md | web | M5-01, M2-03 | done |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
