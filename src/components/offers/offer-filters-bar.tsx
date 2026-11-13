@@ -1,3 +1,5 @@
+"use client";
+
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 import { Button, Card, Input, Label, Select } from "@/components/ui";
