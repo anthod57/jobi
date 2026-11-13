@@ -18,12 +18,31 @@ For “can a human find this in 2 minutes?” checks, read `.wf/roles/shared-mai
 - Run applicable blocks from **`.wf/roles/shared-audit.md`** (§6 always; §1 if deps changed; §3–5 per role/UAT).
 - Read phase **Decisions** + **Contract** — UAT must match them, not generic best practices.
 
-## Manual UAT facilitation
+## UAT tags (plan + verify)
 
-- State **expected** behavior in plain language (given / when / then).
-- Include data setup steps if needed (account, seed, env flag) — minimal.
-- User answer `pass` only when behavior matches; anything else → logged failure.
-- Do not mark UAT `[x]` on assumption or without user confirmation for human-facing checks.
+| Tag | Who proves it | Mark `[x]` / `wflow uat check` when |
+|-----|----------------|--------------------------------------|
+| **`(auto)`** | Agent runs probe first | Pass/fail is objective; one evidence line in chat; **no** user `pass` required |
+| **`(human)`** | User (or agreed screen share) | User says `pass` or reports failure |
+| *(no tag)* | Treat as **`(human)`** | Same as human (legacy phases) |
+
+**`(auto)` examples:** `npm run build`; `npm audit --audit-level=high`; GET route → `lang`, `<title>`, linked CSS contains `--font-geist-sans` / `--font-geist-mono` with Geist variable classes on `<html>`; health JSON + status code.
+
+**`(human)` examples:** OS light/dark readable contrast; Tab focus visible; full journey “feels right”; DS spot-check when judgment matters.
+
+Do not batch-sign `(human)` items. Do not mark `(auto)` without running the probe (or explicit static proof from Contract file paths when UAT says “matches Contract layout”).
+
+### Auto probes (defaults)
+
+- App URL from `README` / `PROJECT.md` or `http://localhost:3000`.
+- Windows: use `curl.exe` (not PowerShell `curl` alias).
+- Next.js Geist: variable **names** live in CSS; `<html>` has `*_variable` classes — assert both, not literal `--font-*` on the tag alone.
+
+### Human facilitation
+
+- State **expected** in plain language (given / when / then).
+- Minimal setup (account, seed, env) when needed.
+- User `pass` only when behavior matches; else log failure → fix todo.
 
 ## Test execution (when todos are QA-owned)
 

@@ -10,10 +10,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "flowbite-react": "^0.12.17",
     "next": "16.4.6",
     "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",

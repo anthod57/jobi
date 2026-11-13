@@ -30,7 +30,9 @@ Use for **`/wf-setup`**, **`/wf-discuss-phase`**, **`/wf-plan-phase`** — not f
 - Todos are **implementation orders**, not brainstorming (verb + file + done condition).
 - ≤ ~15 todos per phase; split phase if larger.
 - First test todo when behavior is new (TDD).
-- UAT = **human-observable** checks, not unit test names.
+- UAT = **observable** acceptance checks, not unit test names. Tag each line **`(auto)`** or **`(human)`** (see `qa.md` § UAT tags).
+- **`(auto)`** — DOM/HTTP/CLI proof the agent can run (title, `lang`, audit, build). **`(human)`** — perception, OS settings, keyboard journey, “looks right”.
+- Untagged UAT: executor/verify treats as **`(human)`** until replanned (keeps old phases safe).
 - `needs[]` reflects real blockers; do not start dependent phase until dependency is `done`.
 
 ## Tickets & tracking
