@@ -1,7 +1,7 @@
 ---
 id: M3
 title: Profil utilisateur local
-status: active
+status: done
 branch: milestone/03-profile
 ---
 # M3 — Profil
@@ -17,7 +17,7 @@ branch: milestone/03-profile
 | 01 | 01-drizzle-schema.md | api | M1-02 | done |
 | 02 | 02-profile-server.md | api | M3-01 | done |
 | 03 | 03-profile-ui.md | web | M2-03, M3-02 | done |
-| 04 | 04-tdd-backfill.md | qa | M3-02 | review |
+| 04 | 04-tdd-backfill.md | qa | M3-02 | done |
 
 ## Decisions (jalon)
 
