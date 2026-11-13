@@ -52,6 +52,7 @@ Agrégateur d’offres d’emploi en local (Docker), pour chercheurs d’emploi 
 - **Repo type :** application Next.js unique (pas monorepo).
 - **Structure :** couches — `src/app/` (routes), `src/components/` (UI + wrappers DS), `src/lib/` (domaine, clients API), `src/server/` ou équivalent (accès DB, jobs).
 - **Tests :** colocalisés — `*.test.ts` / `*.test.tsx` à côté du code.
+- **TDD :** obligatoire pour tout nouveau comportement ; backfill via phases `*-tdd-backfill` — `wflow test red|green` (voir `.wf/roles/shared-tdd.md`).
 - **Naming :** dossiers `kebab-case`, composants React `PascalCase`, alias d’import `@/` → `src/`.
 - **Règle :** une entrée claire par feature côté routes ; pas de `utils/` fourre-tout.
 

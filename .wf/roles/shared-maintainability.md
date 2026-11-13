@@ -58,6 +58,7 @@ Phase **Decisions** cite paths: “Auth API lives under `src/features/auth/`”.
 ## Phase todos
 
 - Prefer todos that name **full paths** under the agreed layout.
+- New **behavior**: first todo in that block is `Test: …` (fails) → impl todos → test green (`pm.md` Feature TDD).
 - “Add migration” and “add route” in separate todos if they are separate commits.
 
 ## Review bar before `done`

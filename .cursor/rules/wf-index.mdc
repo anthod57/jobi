@@ -5,7 +5,8 @@ alwaysApply: true
 
 # WF
 
-- Commands: `/wf-setup` → `/wf-discuss-phase` → `/wf-plan-phase` → `/wf-execute-phase` → `/wf-verify-work` → `/wf-ship`
+- Commands: `/wf-setup` → … → `/wf-verify-work` → `/wf-ship` ; hors loop: `/wf-audit-tests`, `/wf-file-bug`
+- Tickets: `.wf/tickets/` + `wflow ticket …` ; bugs → ticket obligatoire (`shared-tickets.md`)
 - Roles live in **`.wf/roles/`** (… + shared-design-system). **Frontend = design system only** (PROJECT § Design system)
 - Code and folders must stay **human-navigable** — follow PROJECT § Codebase layout + shared-maintainability
 - Replies: **short and direct** — see `.wf/roles/shared-communication.md`

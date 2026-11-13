@@ -54,5 +54,6 @@ Always read `.wf/roles/shared-maintainability.md` — structure, naming, and hum
 
 ## Testing
 
-- TDD when the todo names a test file: red → green → refactor.
+- **Feature = test d’abord:** nouveau endpoint/handler → todo `Test: …test.ts` rouge, puis impl → vert avant todo check.
+- Red → green → refactor ; pas d’impl métier sans spec qui échoue d’abord (sauf copie Contract sans branche nouvelle).
 - Cover auth failure, validation failure, and happy path at minimum for new endpoints.
