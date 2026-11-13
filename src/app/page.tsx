@@ -1,5 +1,7 @@
 import { getHealthStatus } from "@/lib/health";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const { body } = await getHealthStatus();
   const dbLabel =

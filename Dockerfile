@@ -7,6 +7,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV DATABASE_URL=postgresql://jobi:jobi@127.0.0.1:5432/jobi
 RUN npm run build
 
 FROM node:22-alpine AS runner
