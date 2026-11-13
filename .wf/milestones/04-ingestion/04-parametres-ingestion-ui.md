@@ -55,7 +55,7 @@ export async function triggerManualIngestionAction(): Promise<SettingsActionStat
 ## Todos
 
 - [x] Test: `src/app/parametres/actions.test.ts` — spec `saveProviderCredentialsAction` (validation, France Travail & Adzuna save, error handling), `saveCronConfigAction` (`enabled` + `intervalHours` 6/12/24), and `triggerManualIngestionAction` (`runIngestionSync({ trigger: "manual" })`, `already_running`, empty sources, success) (fails until `actions.ts` implemented)
-- [ ] Add `src/app/parametres/actions.ts` — implement `saveProviderCredentialsAction`, `saveCronConfigAction`, and `triggerManualIngestionAction` per Contract with `revalidatePath("/parametres")` and `revalidatePath("/offres")`
+- [x] Add `src/app/parametres/actions.ts` — implement `saveProviderCredentialsAction`, `saveCronConfigAction`, and `triggerManualIngestionAction` per Contract with `revalidatePath("/parametres")` and `revalidatePath("/offres")`
 - [ ] Update `src/components/layout/app-shell.tsx` — add `{ href: "/parametres", label: "Paramètres", icon: Cog6ToothIcon }` (`@heroicons/react/24/outline`) to `NAV_ITEMS`
 - [ ] Add `src/components/settings/settings-panel.tsx` — client UI using `@/components/ui` primitives only (`Card`, `Button`, `Input`, `Label`, `Select`, `Checkbox`, `Badge`, `Alert`): France Travail & Adzuna forms (configured status + masked `keyHint` only), cron toggle & `intervalHours` (`6`/`12`/`24`), « Importer maintenant » button, and `ingestion_runs` history table
 - [ ] Add `src/app/parametres/page.tsx` — Server Component loading `listCredentialStatuses()`, `IngestionCronConfig`, and `listRecentIngestionRuns(20)`, rendering `SettingsPanel` with title `Paramètres — Jobi`
