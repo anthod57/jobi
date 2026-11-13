@@ -70,9 +70,13 @@ Follow **`.wf/roles/shared-audit.md`** — do not invent a separate checklist in
 - Verify consent gating and opt-out paths named in UAT when marketing/analytics added.
 - Confirm erasure/export UAT only if phase Decisions promised them.
 
+## Bugs
+
+- Comportement cassé → **`/wf-file-bug`** ou `wflow ticket add bug …` avant fix (voir `shared-tickets.md`).
+
 ## On failure
 
-1. Add `- [ ] fix: …` under **Todos** (specific file/symptom).
+1. Add `- [ ] fix: …` under **Todos** (specific file/symptom) **or** ticket `T-xxx` if hors scope phase.
 2. Set phase `status: doing` — never `done`.
 3. Re-run affected automated test + failed UAT after fix.
 4. Do not edit Contract without user/discuss — file a Decisions gap instead.

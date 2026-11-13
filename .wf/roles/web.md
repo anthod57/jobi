@@ -56,5 +56,6 @@ Always read `.wf/roles/shared-maintainability.md` — feature folders, component
 
 ## Testing
 
-- Unit/component tests for logic and a11y-critical markup when todos name test files.
+- **Feature = test d’abord:** nouveau comportement UI/logic → todo `Test: …test.tsx` (ou `.ts`) rouge, puis composant/handler → vert.
+- Wiring DS seul (provider, tokens) : smoke `build` / lint suffit sauf si le todo ajoute une règle (validation, état).
 - E2E for critical user paths named in UAT (login, submit, error recovery).

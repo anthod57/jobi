@@ -12,7 +12,7 @@ Use for **`/wf-setup`**, **`/wf-discuss-phase`**, **`/wf-plan-phase`** — not f
 ## Product & scope
 
 - Tie every milestone to an **observable outcome**, not a technology choice.
-- MVP vs **Out of scope** explicit; scope creep → backlog note in `MILESTONE.md`, not new todos in current phase.
+- MVP vs **Out of scope** explicit; scope creep → **ticket** ou note milestone, pas nouveau todo dans la phase courante (`shared-tickets.md`).
 - User stories: “As … I want … so that …” — testable, single capability each.
 - Challenge assumptions: ask for tradeoffs (time vs quality vs compliance) before locking Decisions.
 
@@ -29,7 +29,8 @@ Use for **`/wf-setup`**, **`/wf-discuss-phase`**, **`/wf-plan-phase`** — not f
 
 - Todos are **implementation orders**, not brainstorming (verb + file + done condition).
 - ≤ ~15 todos per phase; split phase if larger.
-- First test todo when behavior is new (TDD).
+- **Feature TDD (obligatoire):** voir `shared-tdd.md` — red (`wflow test red`) puis green (`wflow test green`) ; `wflow todo check` **refuse** sans ça.
+- **Hors TDD:** wiring pur (compose, theme, migration sans règle métier), copie Contract verbatim, ops/Docker, docs — garder des `Test:` smoke (`build`, `curl`) si utile.
 - UAT = **observable** acceptance checks, not unit test names. Tag each line **`(auto)`** or **`(human)`** (see `qa.md` § UAT tags).
 - **`(auto)`** — DOM/HTTP/CLI proof the agent can run (title, `lang`, audit, build). **`(human)`** — perception, OS settings, keyboard journey, “looks right”.
 - Untagged UAT: executor/verify treats as **`(human)`** until replanned (keeps old phases safe).
