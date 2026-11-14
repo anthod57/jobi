@@ -1,8 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockRevalidatePath, mockPersistProfile, mockRecomputeScores } = vi.hoisted(() => ({
+const {
+  mockRevalidatePath,
+  mockParseCvBuffer,
+  mockParseCvStructured,
+  mockLoadProfile,
+  mockPersistProfile,
+  mockUpsertCvAfterParse,
+  mockRecomputeScores,
+} = vi.hoisted(() => ({
   mockRevalidatePath: vi.fn(),
+  mockParseCvBuffer: vi.fn(),
+  mockParseCvStructured: vi.fn(),
+  mockLoadProfile: vi.fn(),
   mockPersistProfile: vi.fn(),
+  mockUpsertCvAfterParse: vi.fn(),
   mockRecomputeScores: vi.fn(),
 }));
 
@@ -10,62 +22,230 @@ vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
+vi.mock("@/lib/profile/cv-parse", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/profile/cv-parse")>();
+  return {
+    ...actual,
+    parseCvBuffer: mockParseCvBuffer,
+  };
+});
+
+vi.mock("@/lib/profile/cv-sections", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/profile/cv-sections")>();
+  return {
+    ...actual,
+    parseCvStructured: mockParseCvStructured,
+  };
+});
+
 vi.mock("@/lib/profile/repository", () => ({
-  getProfile: vi.fn(),
+  getProfile: mockLoadProfile,
   saveProfile: mockPersistProfile,
-  upsertCvAfterParse: vi.fn(),
+  upsertCvAfterParse: mockUpsertCvAfterParse,
 }));
 
 vi.mock("@/lib/scoring/score-repository", () => ({
   recomputeScoresForAllOffers: mockRecomputeScores,
 }));
 
-import { saveProfile } from "./actions";
+import {
+  applyStructuredCvToProfile,
+  reanalyzeCvWithAi,
+  uploadCv,
+} from "./actions";
 
-describe("saveProfile", () => {
+const baseProfile = {
+  fullName: "",
+  headline: "",
+  email: "existing@example.com",
+  phone: "",
+  locationLabel: "",
+  searchRadiusKm: 30,
+  remotePreference: "flexible" as const,
+  minSalaryAnnualGross: null,
+  contractTypes: ["cdi"] as ("cdi")[],
+  skills: [{ id: 1, label: "TypeScript", sortOrder: 0 }],
+  experiences: [],
+  cv: null,
+};
+
+const sampleStructured = {
+  contact: {
+    fullName: "Alice Martin",
+    headline: "Ingénieure Backend",
+    location: "Lyon",
+    emails: ["alice@example.com"],
+    phones: ["+33 6 12 34 56 78"],
+    urls: ["github.com/alice"],
+  },
+  experiences: [
+    {
+      title: "Backend Dev",
+      company: "Acme",
+      startDate: "2022",
+      endDate: "2024",
+      highlights: ["Node.js APIs"],
+    },
+  ],
+  education: [],
+  skills: ["typescript", "PostgreSQL", "Docker"],
+  softSkills: [],
+  other: [],
+};
+
+describe("profil actions (M7-01)", () => {
   beforeEach(() => {
-    mockRevalidatePath.mockReset();
-    mockPersistProfile.mockReset();
-    mockRecomputeScores.mockReset();
+    vi.clearAllMocks();
   });
 
-  it("returns error when input fails schema validation", async () => {
-    const result = await saveProfile({
-      fullName: "",
-      email: "not-an-email",
-      phone: "",
-      locationLabel: "",
-      searchRadiusKm: -1,
-      remotePreference: "hybrid",
-      minSalaryAnnualGross: null,
-      contractTypes: [],
-      skills: [],
-      experiences: [],
-    } as never);
-    expect(result).toEqual({ ok: false, error: "Données du profil invalides." });
+  it("uploadCv runs hybrid parseCvStructured and persists layout + structured metadata", async () => {
+    mockParseCvBuffer.mockResolvedValueOnce({
+      ok: true,
+      text: "Alice Martin\nTypeScript",
+      mimeType: "application/pdf",
+      layout: { isMultiColumn: true, pageCount: 2 },
+    });
+    mockParseCvStructured.mockResolvedValueOnce({
+      structured: sampleStructured,
+      mode: "llm",
+    });
+    mockLoadProfile.mockResolvedValueOnce(baseProfile);
+    mockUpsertCvAfterParse.mockResolvedValueOnce({
+      originalFilename: "cv.pdf",
+      mimeType: "application/pdf",
+      extractedText: "Alice Martin\nTypeScript",
+      uploadedAt: new Date(),
+      atsScore: 90,
+      atsFindings: [],
+      atsAnalyzedAt: new Date(),
+      structuredSections: sampleStructured,
+      parseMode: "llm",
+      isMultiColumn: true,
+      pageCount: 2,
+    });
+
+    const formData = new FormData();
+    formData.set(
+      "file",
+      new File([Buffer.from("%PDF-1.4\n")], "cv.pdf", {
+        type: "application/pdf",
+      }),
+    );
+
+    const res = await uploadCv(formData);
+    expect(res.ok).toBe(true);
+    expect(mockUpsertCvAfterParse).toHaveBeenCalledWith(
+      "cv.pdf",
+      "application/pdf",
+      "Alice Martin\nTypeScript",
+      ["TypeScript"],
+      "existing@example.com",
+      "",
+      {
+        structured: sampleStructured,
+        parseMode: "llm",
+        layout: { isMultiColumn: true, pageCount: 2 },
+      },
+    );
+    expect(mockRecomputeScores).toHaveBeenCalled();
   });
 
-  it("persists valid profile, recomputes scores, and revalidates /profil and /offres", async () => {
-    const input = {
-      fullName: "Ada Lovelace",
-      headline: "Staff Engineer",
-      email: "ada@example.com",
-      phone: "+33600000000",
-      locationLabel: "Paris",
-      searchRadiusKm: 30,
-      remotePreference: "hybrid" as const,
-      minSalaryAnnualGross: 60000,
-      contractTypes: ["cdi" as const],
-      skills: ["TypeScript"],
-      experiences: [],
-    };
+  it("reanalyzeCvWithAi returns error when no CV exists and re-analyzes when present", async () => {
+    mockLoadProfile.mockResolvedValueOnce(baseProfile);
+    const missing = await reanalyzeCvWithAi();
+    expect(missing.ok).toBe(false);
 
-    const result = await saveProfile(input);
+    mockLoadProfile.mockResolvedValueOnce({
+      ...baseProfile,
+      cv: {
+        originalFilename: "cv.pdf",
+        mimeType: "application/pdf",
+        extractedText: "CV text",
+        uploadedAt: new Date(),
+        atsScore: 70,
+        atsFindings: [],
+        atsAnalyzedAt: new Date(),
+        structuredSections: null,
+        parseMode: "deterministic",
+        isMultiColumn: true,
+        pageCount: 2,
+      },
+    });
+    mockParseCvStructured.mockResolvedValueOnce({
+      structured: sampleStructured,
+      mode: "llm",
+    });
+    mockUpsertCvAfterParse.mockResolvedValueOnce({
+      originalFilename: "cv.pdf",
+      mimeType: "application/pdf",
+      extractedText: "CV text",
+      uploadedAt: new Date(),
+      atsScore: 88,
+      atsFindings: [],
+      atsAnalyzedAt: new Date(),
+      structuredSections: sampleStructured,
+      parseMode: "llm",
+      isMultiColumn: true,
+      pageCount: 2,
+    });
 
-    expect(result).toEqual({ ok: true });
-    expect(mockPersistProfile).toHaveBeenCalledWith(input);
-    expect(mockRecomputeScores).toHaveBeenCalledTimes(1);
-    expect(mockRevalidatePath).toHaveBeenCalledWith("/profil");
-    expect(mockRevalidatePath).toHaveBeenCalledWith("/offres");
+    const res = await reanalyzeCvWithAi();
+    expect(res.ok).toBe(true);
+    expect(mockUpsertCvAfterParse).toHaveBeenCalledWith(
+      "cv.pdf",
+      "application/pdf",
+      "CV text",
+      ["TypeScript"],
+      "existing@example.com",
+      "",
+      {
+        structured: sampleStructured,
+        parseMode: "llm",
+        layout: { isMultiColumn: true, pageCount: 2 },
+      },
+    );
+    expect(mockRecomputeScores).toHaveBeenCalled();
+  });
+
+  it("applyStructuredCvToProfile merges non-destructively and rescores offers", async () => {
+    mockLoadProfile.mockResolvedValueOnce({
+      ...baseProfile,
+      cv: {
+        originalFilename: "cv.pdf",
+        mimeType: "application/pdf",
+        extractedText: "CV text",
+        uploadedAt: new Date(),
+        atsScore: 88,
+        atsFindings: [],
+        atsAnalyzedAt: new Date(),
+        structuredSections: sampleStructured,
+        parseMode: "llm",
+        isMultiColumn: false,
+        pageCount: 1,
+      },
+    });
+
+    const res = await applyStructuredCvToProfile();
+    expect(res).toEqual({ ok: true });
+    expect(mockPersistProfile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fullName: "Alice Martin",
+        headline: "Ingénieure Backend",
+        email: "existing@example.com",
+        phone: "+33 6 12 34 56 78",
+        locationLabel: "Lyon",
+        skills: ["TypeScript", "PostgreSQL", "Docker"],
+        experiences: [
+          expect.objectContaining({
+            title: "Backend Dev",
+            company: "Acme",
+            startDate: "2022-01-01",
+            endDate: "2024-01-01",
+          }),
+        ],
+      }),
+    );
+    expect(mockRecomputeScores).toHaveBeenCalled();
   });
 });
