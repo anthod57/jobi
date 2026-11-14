@@ -1,7 +1,7 @@
 ---
 id: T-007
 type: bug
-status: doing
+status: done
 severity: high
 created: 2026-11-14
 ---
