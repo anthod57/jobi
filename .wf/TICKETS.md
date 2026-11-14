@@ -21,6 +21,15 @@ Bugs et dettes hors phase courante. CLI: `wflow ticket add bug|test-gap …` · 
 | T-004 | test-gap | done | — | Tests schéma Drizzle + contraintes SQL | src/server/db/schema.ts |
 | T-005 | test-gap | done | — | Specs UI primitives Flowbite (M2) | src/components/ui/button.tsx |
 | T-006 | bug | done | high | Tailwind CSS non compile sous Turbopack (next.config.ts) | — |
+| T-007 | bug | open | high | Profil non persisté en BDD ou non hydraté au redémarrage du front | — |
+| T-008 | bug | open | medium | Passe UI/UX : espacements, tailles de champs, responsivité et RGAA/WCAG | — |
+| T-009 | bug | open | high | Passe optimisation et sécurité (front, back, BDD) | — |
+
+
+
+
+
+
 
 
 
