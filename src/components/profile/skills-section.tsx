@@ -75,7 +75,9 @@ export function SkillsSection({ skills, onChange }: SkillsSectionProps) {
             </li>
           ))}
           {skills.length === 0 ? (
-            <li className="text-sm text-secondary-500">Aucune compétence.</li>
+            <li className="text-sm text-secondary-600 dark:text-secondary-400">
+              Aucune compétence.
+            </li>
           ) : null}
         </ul>
       </div>

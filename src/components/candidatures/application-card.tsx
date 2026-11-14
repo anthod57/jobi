@@ -153,7 +153,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/offres/${application.offerId}`}
-                className="text-base font-semibold text-secondary-950 hover:text-primary-700 hover:underline dark:text-white dark:hover:text-primary-400"
+                className="rounded-sm text-base font-semibold text-secondary-950 hover:text-primary-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 dark:text-white dark:hover:text-primary-400"
               >
                 {application.offerTitle}
               </Link>
@@ -171,7 +171,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               <Badge color="gray">
                 {APPLICATION_TONE_LABELS[application.tone]}
               </Badge>
-              <span className="text-xs text-secondary-500 dark:text-secondary-400">
+              <span className="text-xs text-secondary-600 dark:text-secondary-400">
                 {LLM_PROVIDER_LABELS[application.provider]} · {application.model}{" "}
                 · Màj {formatShortDate(application.updatedAt)}
                 {application.sentAt
@@ -220,6 +220,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               type="button"
               color="light"
               size="sm"
+              aria-expanded={isEditing}
               onClick={() => setIsEditing((prev) => !prev)}
             >
               <PencilSquareIcon className="mr-1 h-4 w-4" aria-hidden="true" />

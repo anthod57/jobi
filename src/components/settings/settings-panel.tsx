@@ -459,7 +459,10 @@ export function SettingsPanel({
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-secondary-700 dark:text-secondary-300">
-                <thead className="border-b border-secondary-200 text-xs uppercase text-secondary-500 dark:border-secondary-800 dark:text-secondary-400">
+                <caption className="sr-only">
+                  Historique des imports récents
+                </caption>
+                <thead className="border-b border-secondary-200 text-xs uppercase text-secondary-600 dark:border-secondary-800 dark:text-secondary-400">
                   <tr>
                     <th scope="col" className="py-2 pr-4">
                       Source

@@ -21,6 +21,7 @@ export function Button({
     <FlowbiteButton
       as={props.as ?? (props.href ? Link : undefined)}
       disabled={disabled || isProcessing}
+      aria-busy={isProcessing || undefined}
       className={className}
       {...props}
     >

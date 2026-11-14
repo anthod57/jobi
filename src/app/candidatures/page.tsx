@@ -105,7 +105,7 @@ export default async function CandidaturesPage({
             {filters.status || filters.q ? (
               <Link
                 href="/candidatures"
-                className="text-sm font-medium text-secondary-600 hover:underline dark:text-secondary-400"
+                className="rounded-sm text-sm font-medium text-secondary-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 dark:text-secondary-400"
               >
                 Réinitialiser
               </Link>

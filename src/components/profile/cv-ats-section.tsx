@@ -79,9 +79,11 @@ export function CvAtsSection({ cv }: CvAtsSectionProps) {
         >
           Importer le CV
         </Button>
-        {uploadMessage ? (
-          <Alert variant={uploadMessage.variant}>{uploadMessage.text}</Alert>
-        ) : null}
+        <div aria-live="polite">
+          {uploadMessage ? (
+            <Alert variant={uploadMessage.variant}>{uploadMessage.text}</Alert>
+          ) : null}
+        </div>
         <AtsDisplay cv={cv} />
       </div>
     </Card>

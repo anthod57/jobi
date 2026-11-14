@@ -23,7 +23,7 @@ type AtsDisplayProps = {
 export function AtsDisplay({ cv }: AtsDisplayProps) {
   if (!cv) {
     return (
-      <p className="text-sm text-secondary-500">
+      <p className="text-sm text-secondary-600 dark:text-secondary-400">
         Importez un CV pour obtenir un score ATS.
       </p>
     );
@@ -48,7 +48,7 @@ export function AtsDisplay({ cv }: AtsDisplayProps) {
         <Badge color={band.color}>{band.label}</Badge>
       </div>
       {cv.originalFilename ? (
-        <p className="text-sm text-secondary-500">
+        <p className="text-sm text-secondary-600 dark:text-secondary-400">
           Fichier : {cv.originalFilename}
         </p>
       ) : null}
@@ -58,9 +58,9 @@ export function AtsDisplay({ cv }: AtsDisplayProps) {
         ) : (
           grouped.map((group) => (
             <section key={group.severity} aria-label={SEVERITY_HEADINGS[group.severity]}>
-              <h4 className="mb-2 text-sm font-medium text-secondary-900 dark:text-white">
+              <h3 className="mb-2 text-sm font-medium text-secondary-900 dark:text-white">
                 {SEVERITY_HEADINGS[group.severity]}
-              </h4>
+              </h3>
               <ul className="flex flex-col gap-2">
                 {group.items.map((finding) => (
                   <li key={finding.code}>

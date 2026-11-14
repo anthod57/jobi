@@ -62,6 +62,7 @@ export function ExperiencesSection({
                   type="button"
                   size="xs"
                   color="gray"
+                  aria-label={`Retirer l'expérience ${index + 1}`}
                   onClick={() => removeRow(index)}
                 >
                   Retirer

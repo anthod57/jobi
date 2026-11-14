@@ -76,7 +76,7 @@ export const flowbiteTheme = createTheme({
       base: "w-full rounded-none border-t border-secondary-200 bg-transparent px-6 py-4 shadow-none dark:border-secondary-800 dark:bg-transparent",
     },
     copyright: {
-      base: "text-xs text-secondary-500 dark:text-secondary-400",
+      base: "text-xs text-secondary-600 dark:text-secondary-400",
     },
   },
   dropdown: {
@@ -86,7 +86,7 @@ export const flowbiteTheme = createTheme({
         base: "flex w-full cursor-pointer items-center justify-start px-3.5 py-2 text-sm text-secondary-700 hover:bg-secondary-100 hover:text-secondary-900 focus:bg-secondary-100 focus:outline-none dark:text-secondary-200 dark:hover:bg-secondary-800 dark:hover:text-white",
       },
       header:
-        "block px-3.5 py-2 text-xs font-medium text-secondary-500 dark:text-secondary-400",
+        "block px-3.5 py-2 text-xs font-medium text-secondary-600 dark:text-secondary-400",
     },
   },
   avatar: {

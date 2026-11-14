@@ -216,7 +216,7 @@ export function OfferApplicationPanel({
           {initialApplication ? (
             <Link
               href="/candidatures"
-              className="text-sm font-medium text-primary-700 hover:underline dark:text-primary-400"
+              className="rounded-sm text-sm font-medium text-primary-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 dark:text-primary-400"
             >
               Voir mes candidatures →
             </Link>
@@ -231,7 +231,10 @@ export function OfferApplicationPanel({
         ) : (
           <Alert variant="warning">
             Aucune clé API LLM configurée pour le fournisseur actif.{" "}
-            <Link href="/parametres" className="font-semibold underline">
+            <Link
+              href="/parametres"
+              className="rounded-sm font-semibold underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
+            >
               Configurer dans Paramètres
             </Link>
             .

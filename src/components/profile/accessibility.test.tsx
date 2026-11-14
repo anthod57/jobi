@@ -17,19 +17,21 @@ describe("Profile accessibility (RGAA/WCAG)", () => {
     renderWithTheme(
       <AtsDisplay
         cv={{
-          id: 1,
           originalFilename: "cv.pdf",
           mimeType: "application/pdf",
-          sizeBytes: 1024,
+          extractedText: "Contenu CV",
           atsScore: 72,
           atsFindings: [
             {
               code: "missing_email",
+              category: "contact",
               severity: "error",
+              pointsDeducted: 5,
               message: "E-mail manquant.",
             },
           ],
-          uploadedAt: "2026-01-01T00:00:00.000Z",
+          uploadedAt: new Date("2026-01-01T00:00:00.000Z"),
+          atsAnalyzedAt: new Date("2026-01-01T00:00:00.000Z"),
         }}
       />,
     );
