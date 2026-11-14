@@ -82,6 +82,7 @@ export async function updateApplicationAction(input: {
 - [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
 - [x] fix: surface LLM API error details and omit unsupported temperature on OpenAI models
 - [x] fix: retry OpenAI-compatible calls without temperature when HTTP 400 rejects temperature
+- [x] fix: append profile fullName signature locally after LLM draft generation and place OfferApplicationPanel below ScoreBreakdownCard on lg screens
 
 ## UAT
 

@@ -49,7 +49,8 @@ export function buildApplicationPrompt(
   const system = [
     "Tu es un assistant spécialisé dans la rédaction de candidatures professionnelles en français.",
     "Réponds uniquement par un objet JSON valide de la forme {\"subject\": \"...\", \"body\": \"...\"}, sans texte autour.",
-    "N'invente aucune expérience, compétence ou donnée personnelleabsente du profil.",
+    "N'invente aucune expérience, compétence ou donnée personnelle absente du profil.",
+    "N'ajoute jamais de nom fictif ni de placeholder de signature (ex. Jane Doe, [Votre nom]) : termine simplement par la formule de politesse (ex. « Cordialement, »).",
   ].join("\n");
 
   const experiencesBlock =
@@ -91,4 +92,22 @@ export function buildApplicationPrompt(
     .join("\n");
 
   return { system, user };
+}
+
+/** Appends the user's real name locally after LLM generation, stripping any placeholder signature. */
+export function appendCandidateSignature(body: string, fullName: string): string {
+  const cleanedBody = body
+    .replace(/\n*(?:\[?votre nom\]?|\[?prénom nom\]?|jane doe|john doe)\s*$/i, "")
+    .trimEnd();
+  const trimmedName = fullName.trim();
+  if (!trimmedName) {
+    return cleanedBody;
+  }
+  const alreadyEndsWithName = cleanedBody
+    .toLowerCase()
+    .endsWith(trimmedName.toLowerCase());
+  if (alreadyEndsWithName) {
+    return cleanedBody;
+  }
+  return `${cleanedBody}\n${trimmedName}`;
 }

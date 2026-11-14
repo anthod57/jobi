@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 
 import { generateWithLlm } from "@/lib/candidatures/llm-client";
 import { getDefaultModelForProvider } from "@/lib/candidatures/pricing";
-import { buildApplicationPrompt } from "@/lib/candidatures/prompt";
+import {
+  appendCandidateSignature,
+  buildApplicationPrompt,
+} from "@/lib/candidatures/prompt";
 import {
   saveGeneratedApplication,
   updateApplication,
@@ -87,12 +90,17 @@ export async function generateDraftAction(input: {
       customInstructions,
     );
 
-    const result = await generateWithLlm(
+    const rawResult = await generateWithLlm(
       activeProvider,
       keyCred.apiKey,
       model,
       prompt,
     );
+
+    const result = {
+      ...rawResult,
+      body: appendCandidateSignature(rawResult.body, profile.fullName ?? ""),
+    };
 
     const saved = await saveGeneratedApplication({
       offerId,

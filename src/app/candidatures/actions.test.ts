@@ -114,6 +114,7 @@ describe("generateDraftAction", () => {
       description: "Stack Next.js et PostgreSQL",
     });
     mockGetProfile.mockResolvedValueOnce({
+      fullName: "Anthony Dupont",
       headline: "Développeur Full-Stack",
       skills: [{ id: 1, label: "TypeScript", sortOrder: 0 }],
       experiences: [
@@ -132,7 +133,7 @@ describe("generateDraftAction", () => {
     });
     mockGenerateWithLlm.mockResolvedValueOnce({
       subject: "Candidature Développeur TypeScript",
-      body: "Bonjour, ...",
+      body: "Bonjour,\n\nCordialement,\n[Votre nom]",
       promptTokens: 200,
       completionTokens: 100,
       totalTokens: 300,
@@ -164,6 +165,7 @@ describe("generateDraftAction", () => {
       model: "claude-3-5-sonnet-latest",
       result: expect.objectContaining({
         subject: "Candidature Développeur TypeScript",
+        body: "Bonjour,\n\nCordialement,\nAnthony Dupont",
       }),
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith("/offres/42");

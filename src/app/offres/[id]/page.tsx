@@ -203,17 +203,16 @@ export default async function OfferDetailPage({
           </Card>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="space-y-6 lg:col-span-1">
           <ScoreBreakdownCard score={offer.score} breakdown={offer.breakdown} />
+          <OfferApplicationPanel
+            offerId={offer.id}
+            llmConfigured={llmConfigured}
+            activeProviderLabel={activeProviderLabel}
+            initialApplication={initialApplication}
+          />
         </div>
       </div>
-
-      <OfferApplicationPanel
-        offerId={offer.id}
-        llmConfigured={llmConfigured}
-        activeProviderLabel={activeProviderLabel}
-        initialApplication={initialApplication}
-      />
     </div>
   );
 }
