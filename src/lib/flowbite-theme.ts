@@ -3,13 +3,15 @@ import { createTheme } from "flowbite-react";
 /** Semantic Flowbite overrides — token values live in `globals.css` @theme. */
 export const flowbiteTheme = createTheme({
   button: {
-    base: "group relative flex items-center justify-center rounded-md text-center font-medium transition-colors focus:z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40",
+    base: "group relative flex cursor-pointer items-center justify-center rounded-md text-center font-medium transition-colors focus:z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40",
     color: {
       primary:
         "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500/40 dark:bg-primary-600 dark:hover:bg-primary-500",
       default:
         "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500/40 dark:bg-primary-600 dark:hover:bg-primary-500",
       gray: "border border-secondary-200 bg-white text-secondary-700 hover:bg-secondary-100 hover:text-secondary-900 dark:border-secondary-700 dark:bg-secondary-900 dark:text-secondary-200 dark:hover:bg-secondary-800 dark:hover:text-white",
+      failure:
+        "bg-failure-600 text-white hover:bg-failure-700 focus-visible:ring-failure-500/40 dark:bg-failure-600 dark:hover:bg-failure-500",
     },
   },
   card: {

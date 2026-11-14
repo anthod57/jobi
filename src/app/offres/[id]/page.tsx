@@ -8,6 +8,8 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { LLM_PROVIDER_LABELS } from "@/components/candidatures/labels";
+import { OfferApplicationPanel } from "@/components/candidatures/offer-application-panel";
 import {
   CONTRACT_TYPE_LABELS,
   REMOTE_MODE_LABELS,
@@ -16,6 +18,12 @@ import {
 import { ScoreBadge } from "@/components/offers/score-badge";
 import { ScoreBreakdownCard } from "@/components/offers/score-breakdown-card";
 import { Badge, Button, Card } from "@/components/ui";
+import { getApplicationByOfferId } from "@/lib/candidatures/repository";
+import {
+  getDecryptedCredential,
+  listCredentialStatuses,
+  type LlmConfigCredential,
+} from "@/lib/ingestion/credentials-repository";
 import { getScoredOfferById } from "@/lib/scoring/score-repository";
 
 export const dynamic = "force-dynamic";
@@ -86,8 +94,19 @@ export default async function OfferDetailPage({
   const offerId = parseOfferId(id);
   if (!offerId) notFound();
 
-  const offer = await getScoredOfferById(offerId);
+  const [offer, initialApplication, llmConfig, statuses] = await Promise.all([
+    getScoredOfferById(offerId),
+    getApplicationByOfferId(offerId),
+    getDecryptedCredential<LlmConfigCredential>("llm_config").catch(() => null),
+    listCredentialStatuses(),
+  ]);
   if (!offer) notFound();
+
+  const activeProvider = llmConfig?.activeProvider ?? "mistral";
+  const llmConfigured = statuses.some(
+    (s) => s.provider === `llm_${activeProvider}` && s.configured,
+  );
+  const activeProviderLabel = LLM_PROVIDER_LABELS[activeProvider];
 
   const salaryLabel = formatOfferSalary(
     offer.salaryMin,
@@ -184,8 +203,14 @@ export default async function OfferDetailPage({
           </Card>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="space-y-6 lg:col-span-1">
           <ScoreBreakdownCard score={offer.score} breakdown={offer.breakdown} />
+          <OfferApplicationPanel
+            offerId={offer.id}
+            llmConfigured={llmConfigured}
+            activeProviderLabel={activeProviderLabel}
+            initialApplication={initialApplication}
+          />
         </div>
       </div>
     </div>
