@@ -49,7 +49,7 @@ export default async function CandidaturesPage({
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-section">
       <div className="flex flex-col gap-1 border-b border-secondary-200 pb-4 dark:border-secondary-800">
         <h1 className="text-2xl font-semibold tracking-tight text-secondary-950 dark:text-white">
           Candidatures
@@ -67,8 +67,8 @@ export default async function CandidaturesPage({
           action="/candidatures"
           className="flex flex-wrap items-end gap-4"
         >
-          <div className="w-48">
-            <Label htmlFor="filter-status" className="mb-1 block">
+          <div className="w-full sm:w-48">
+            <Label htmlFor="filter-status" className="mb-1.5 block">
               Statut
             </Label>
             <Select
@@ -85,8 +85,8 @@ export default async function CandidaturesPage({
             </Select>
           </div>
 
-          <div className="min-w-[220px] flex-1">
-            <Label htmlFor="filter-q" className="mb-1 block">
+          <div className="w-full sm:min-w-[220px] sm:flex-1">
+            <Label htmlFor="filter-q" className="mb-1.5 block">
               Rechercher
             </Label>
             <Input

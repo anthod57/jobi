@@ -191,13 +191,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main id="main-content" className="flex-1 p-page">
+        <main id="main-content" className="flex-1 px-4 py-4 sm:p-page">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
 
-        <Footer>
+        <Footer className="flex flex-col items-start gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <FooterCopyright by="Jobi — Instance locale" year={2026} />
-          <FooterLinkGroup className="mt-2 flex gap-4 text-xs sm:mt-0">
+          <FooterLinkGroup className="mt-0 flex gap-4 text-xs">
             <FooterLink as={Link} href="/profil">
               Mon profil
             </FooterLink>

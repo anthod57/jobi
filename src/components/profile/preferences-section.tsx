@@ -48,56 +48,89 @@ export function PreferencesSection({
   return (
     <Card title="Préférences de recherche" className="mt-section">
       <div className="flex flex-col gap-stack">
-        <div>
-          <Label htmlFor="profile-location" value="Zone de recherche" />
-          <Input
-            id="profile-location"
-            className="mt-2"
-            value={value.locationLabel}
-            onChange={(e) => onChange({ locationLabel: e.target.value })}
-          />
+        <div className="grid gap-stack sm:grid-cols-2">
+          <div>
+            <Label
+              htmlFor="profile-location"
+              value="Zone de recherche"
+              className="mb-1.5 block"
+            />
+            <Input
+              id="profile-location"
+              value={value.locationLabel}
+              onChange={(e) => onChange({ locationLabel: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label
+              htmlFor="profile-radius"
+              value="Rayon (km)"
+              className="mb-1.5 block"
+            />
+            <Input
+              id="profile-radius"
+              type="number"
+              min={0}
+              max={500}
+              value={value.searchRadiusKm}
+              onChange={(e) =>
+                onChange({
+                  searchRadiusKm: Number.parseInt(e.target.value, 10) || 0,
+                })
+              }
+            />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="profile-radius" value="Rayon (km)" />
-          <Input
-            id="profile-radius"
-            type="number"
-            min={0}
-            max={500}
-            className="mt-2"
-            value={value.searchRadiusKm}
-            onChange={(e) =>
-              onChange({
-                searchRadiusKm: Number.parseInt(e.target.value, 10) || 0,
-              })
-            }
-          />
-        </div>
-        <div>
-          <Label htmlFor="profile-remote" value="Présentiel / télétravail" />
-          <Select
-            id="profile-remote"
-            className="mt-2"
-            value={value.remotePreference}
-            onChange={(e) =>
-              onChange({
-                remotePreference: e.target
-                  .value as ProfileUpdateInput["remotePreference"],
-              })
-            }
-          >
-            {REMOTE_PREFERENCE_OPTIONS.map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </Select>
+        <div className="grid gap-stack sm:grid-cols-2">
+          <div>
+            <Label
+              htmlFor="profile-remote"
+              value="Présentiel / télétravail"
+              className="mb-1.5 block"
+            />
+            <Select
+              id="profile-remote"
+              value={value.remotePreference}
+              onChange={(e) =>
+                onChange({
+                  remotePreference: e.target
+                    .value as ProfileUpdateInput["remotePreference"],
+                })
+              }
+            >
+              {REMOTE_PREFERENCE_OPTIONS.map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Label
+              htmlFor="profile-salary"
+              value="Salaire minimum annuel brut (€, optionnel)"
+              className="mb-1.5 block"
+            />
+            <Input
+              id="profile-salary"
+              type="number"
+              min={0}
+              value={value.minSalaryAnnualGross ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value;
+                onChange({
+                  minSalaryAnnualGross:
+                    raw === "" ? null : Number.parseInt(raw, 10) || null,
+                });
+              }}
+            />
+          </div>
         </div>
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-secondary-900 dark:text-white">
             Types de contrat
           </legend>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
             {CONTRACT_TYPE_OPTIONS.map(([type, label]) => {
               const id = `profile-contract-${type}`;
               const checked = value.contractTypes.includes(type);
@@ -114,26 +147,6 @@ export function PreferencesSection({
             })}
           </div>
         </fieldset>
-        <div>
-          <Label
-            htmlFor="profile-salary"
-            value="Salaire minimum annuel brut (€, optionnel)"
-          />
-          <Input
-            id="profile-salary"
-            type="number"
-            min={0}
-            className="mt-2"
-            value={value.minSalaryAnnualGross ?? ""}
-            onChange={(e) => {
-              const raw = e.target.value;
-              onChange({
-                minSalaryAnnualGross:
-                  raw === "" ? null : Number.parseInt(raw, 10) || null,
-              });
-            }}
-          />
-        </div>
       </div>
     </Card>
   );

@@ -61,10 +61,10 @@ export function CvAtsSection({ cv }: CvAtsSectionProps) {
           <Label
             htmlFor={fileInputId}
             value="Fichier CV (PDF ou DOCX, max 5 Mo)"
+            className="mb-1.5 block"
           />
           <FileInput
             id={fileInputId}
-            className="mt-2"
             accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             disabled={uploading}
             onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
@@ -73,6 +73,7 @@ export function CvAtsSection({ cv }: CvAtsSectionProps) {
         <Button
           type="button"
           color="gray"
+          className="w-full sm:w-fit"
           isProcessing={uploading}
           onClick={onUpload}
         >

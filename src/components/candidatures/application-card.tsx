@@ -181,8 +181,8 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="w-36">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <div className="w-full sm:w-36">
               <Label
                 htmlFor={`status-${application.id}`}
                 className="sr-only"
@@ -295,7 +295,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         ) : (
           <div className="space-y-3 border-t border-secondary-200 pt-3 dark:border-secondary-800">
             <div>
-              <Label htmlFor={`subject-${application.id}`} className="mb-1 block">
+              <Label htmlFor={`subject-${application.id}`} className="mb-1.5 block">
                 Objet
               </Label>
               <Input
@@ -306,7 +306,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               />
             </div>
             <div>
-              <Label htmlFor={`body-${application.id}`} className="mb-1 block">
+              <Label htmlFor={`body-${application.id}`} className="mb-1.5 block">
                 Message
               </Label>
               <textarea
@@ -318,7 +318,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               />
             </div>
             <div>
-              <Label htmlFor={`notes-${application.id}`} className="mb-1 block">
+              <Label htmlFor={`notes-${application.id}`} className="mb-1.5 block">
                 Notes personnelles
               </Label>
               <textarea
