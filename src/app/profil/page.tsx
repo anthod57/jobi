@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { CvQuickFillBanner } from "@/components/profile/cv-quick-fill-banner";
 import { ProfileForm } from "@/components/profile/profile-form";
+import { hasConfiguredLlmKey } from "@/lib/profile/cv-llm-parser";
 
 import { getProfile } from "./actions";
 
@@ -11,7 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilPage() {
-  const profile = await getProfile();
+  const [profile, hasLlmKey] = await Promise.all([
+    getProfile(),
+    hasConfiguredLlmKey(),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -24,7 +29,8 @@ export default async function ProfilPage() {
         </p>
       </div>
       <div className="mt-section">
-        <ProfileForm profile={profile} />
+        <CvQuickFillBanner cv={profile.cv} hasLlmKey={hasLlmKey} />
+        <ProfileForm profile={profile} hasLlmKey={hasLlmKey} />
       </div>
     </div>
   );
