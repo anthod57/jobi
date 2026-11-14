@@ -216,7 +216,7 @@ export function OfferApplicationPanel({
           </Alert>
         )}
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="space-y-4">
           <div>
             <Label htmlFor="application-tone" className="mb-1 block">
               Ton
@@ -233,7 +233,7 @@ export function OfferApplicationPanel({
               ))}
             </Select>
           </div>
-          <div className="md:col-span-2">
+          <div>
             <Label htmlFor="application-instructions" className="mb-1 block">
               Consigne particulière (optionnel)
             </Label>
@@ -336,8 +336,8 @@ export function OfferApplicationPanel({
               />
             </div>
 
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="w-48">
+            <div className="space-y-4">
+              <div>
                 <Label htmlFor="application-status" className="mb-1 block">
                   Statut
                 </Label>
