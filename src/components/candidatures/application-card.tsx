@@ -191,6 +191,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               </Label>
               <Select
                 id={`status-${application.id}`}
+                sizing="sm"
                 value={status}
                 disabled={isPending}
                 onChange={(e) =>
