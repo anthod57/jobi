@@ -133,6 +133,18 @@ export async function updateApplication(
   return rows[0] ?? null;
 }
 
+export async function deleteApplication(
+  applicationId: number,
+): Promise<{ id: number; offerId: number } | null> {
+  const db = getDb();
+  const rows = await db
+    .delete(applications)
+    .where(eq(applications.id, applicationId))
+    .returning({ id: applications.id, offerId: applications.offerId });
+
+  return rows[0] ?? null;
+}
+
 export async function getApplicationByOfferId(
   offerId: number,
 ): Promise<ApplicationWithOffer | null> {

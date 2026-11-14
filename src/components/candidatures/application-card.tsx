@@ -4,12 +4,16 @@ import {
   CheckIcon,
   ClipboardDocumentIcon,
   PencilSquareIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import { updateApplicationAction } from "@/app/candidatures/actions";
+import {
+  deleteApplicationAction,
+  updateApplicationAction,
+} from "@/app/candidatures/actions";
 import {
   APPLICATION_STATUS_COLORS,
   APPLICATION_STATUS_LABELS,
@@ -57,6 +61,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
   const [body, setBody] = useState(application.draftBody);
   const [notes, setNotes] = useState(application.notes);
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<{
     ok: boolean;
@@ -114,6 +119,19 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         message: "Impossible de copier dans le presse-papiers.",
       });
     }
+  }
+
+  function handleDelete() {
+    setFeedback(null);
+    startTransition(async () => {
+      const res = await deleteApplicationAction(application.id);
+      if (!res.ok) {
+        setFeedback({ ok: false, message: res.error });
+        setConfirmDelete(false);
+        return;
+      }
+      router.refresh();
+    });
   }
 
   const contractLabel = application.offerContractType
@@ -206,8 +224,49 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               <PencilSquareIcon className="mr-1 h-4 w-4" aria-hidden="true" />
               {isEditing ? "Fermer" : "Éditer"}
             </Button>
+            <Button
+              type="button"
+              color="failure"
+              size="sm"
+              disabled={isPending}
+              onClick={() => setConfirmDelete(true)}
+            >
+              <TrashIcon className="mr-1 h-4 w-4" aria-hidden="true" />
+              Supprimer
+            </Button>
           </div>
         </div>
+
+        {confirmDelete ? (
+          <Alert variant="warning">
+            <div className="space-y-2">
+              <p>
+                Supprimer définitivement cette candidature pour «{" "}
+                {application.offerTitle} » ?
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  color="failure"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={handleDelete}
+                >
+                  {isPending ? "Suppression..." : "Confirmer la suppression"}
+                </Button>
+                <Button
+                  type="button"
+                  color="light"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Annuler
+                </Button>
+              </div>
+            </div>
+          </Alert>
+        ) : null}
 
         <div aria-live="polite" className="space-y-2">
           {copied ? <Alert variant="success">Copié !</Alert> : null}

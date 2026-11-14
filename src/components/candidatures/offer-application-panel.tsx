@@ -4,12 +4,14 @@ import {
   CheckIcon,
   ClipboardDocumentIcon,
   SparklesIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import {
+  deleteApplicationAction,
   generateDraftAction,
   updateApplicationAction,
 } from "@/app/candidatures/actions";
@@ -75,6 +77,7 @@ export function OfferApplicationPanel({
   );
   const [isDirty, setIsDirty] = useState(false);
   const [confirmRegenerate, setConfirmRegenerate] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [feedback, setFeedback] = useState<{
     ok: boolean;
     message: string;
@@ -175,6 +178,25 @@ export function OfferApplicationPanel({
         message: "Impossible de copier dans le presse-papiers.",
       });
     }
+  }
+
+  function handleDelete() {
+    if (!initialApplication) return;
+    setFeedback(null);
+    startSave(async () => {
+      const res = await deleteApplicationAction(initialApplication.id);
+      if (!res.ok) {
+        setFeedback({ ok: false, message: res.error });
+        setConfirmDelete(false);
+        return;
+      }
+      setConfirmDelete(false);
+      setSubject("");
+      setBody("");
+      setIsDirty(false);
+      setFeedback({ ok: true, message: "Candidature supprimée." });
+      router.refresh();
+    });
   }
 
   return (
@@ -381,7 +403,46 @@ export function OfferApplicationPanel({
                 >
                   {isSaving ? "Enregistrement..." : "Enregistrer"}
                 </Button>
+                <Button
+                  type="button"
+                  color="failure"
+                  disabled={isSaving}
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <TrashIcon className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                  Supprimer
+                </Button>
               </div>
+
+              {confirmDelete ? (
+                <Alert variant="warning">
+                  <div className="space-y-2">
+                    <p>Supprimer définitivement cette candidature ?</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        color="failure"
+                        size="sm"
+                        disabled={isSaving}
+                        onClick={handleDelete}
+                      >
+                        {isSaving
+                          ? "Suppression..."
+                          : "Confirmer la suppression"}
+                      </Button>
+                      <Button
+                        type="button"
+                        color="light"
+                        size="sm"
+                        disabled={isSaving}
+                        onClick={() => setConfirmDelete(false)}
+                      >
+                        Annuler
+                      </Button>
+                    </div>
+                  </div>
+                </Alert>
+              ) : null}
             </div>
           </div>
         ) : null}

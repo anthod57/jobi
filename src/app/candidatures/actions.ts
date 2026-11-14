@@ -9,6 +9,7 @@ import {
   buildApplicationPrompt,
 } from "@/lib/candidatures/prompt";
 import {
+  deleteApplication,
   saveGeneratedApplication,
   updateApplication,
 } from "@/lib/candidatures/repository";
@@ -156,6 +157,35 @@ export async function updateApplicationAction(input: {
         err instanceof Error
           ? err.message
           : "Impossible de mettre à jour la candidature.",
+    };
+  }
+}
+
+/** Deletes an application and its associated LLM usage logs. */
+export async function deleteApplicationAction(
+  applicationId: number,
+): Promise<ActionResult> {
+  if (!Number.isInteger(applicationId) || applicationId <= 0) {
+    return { ok: false, error: "Identifiant de candidature invalide." };
+  }
+
+  try {
+    const deleted = await deleteApplication(applicationId);
+    if (!deleted) {
+      return { ok: false, error: "Candidature introuvable." };
+    }
+
+    revalidatePath("/candidatures");
+    revalidatePath(`/offres/${deleted.offerId}`);
+
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : "Impossible de supprimer la candidature.",
     };
   }
 }

@@ -7,6 +7,7 @@ const {
   mockGenerateWithLlm,
   mockSaveGeneratedApplication,
   mockUpdateApplication,
+  mockDeleteApplication,
   mockRevalidatePath,
 } = vi.hoisted(() => ({
   mockGetDecryptedCredential: vi.fn(),
@@ -15,6 +16,7 @@ const {
   mockGenerateWithLlm: vi.fn(),
   mockSaveGeneratedApplication: vi.fn(),
   mockUpdateApplication: vi.fn(),
+  mockDeleteApplication: vi.fn(),
   mockRevalidatePath: vi.fn(),
 }));
 
@@ -37,13 +39,18 @@ vi.mock("@/lib/candidatures/llm-client", () => ({
 vi.mock("@/lib/candidatures/repository", () => ({
   saveGeneratedApplication: mockSaveGeneratedApplication,
   updateApplication: mockUpdateApplication,
+  deleteApplication: mockDeleteApplication,
 }));
 
 vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
-import { generateDraftAction, updateApplicationAction } from "./actions";
+import {
+  deleteApplicationAction,
+  generateDraftAction,
+  updateApplicationAction,
+} from "./actions";
 
 describe("generateDraftAction", () => {
   beforeEach(() => {
@@ -220,6 +227,36 @@ describe("updateApplicationAction", () => {
       draftBody: "Corps mis à jour",
       notes: "Relance J+7",
     });
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/candidatures");
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/offres/42");
+  });
+});
+
+describe("deleteApplicationAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rejects non-positive applicationId", async () => {
+    const res = await deleteApplicationAction(0);
+    expect(res.ok).toBe(false);
+    expect(mockDeleteApplication).not.toHaveBeenCalled();
+  });
+
+  it("returns error when application does not exist", async () => {
+    mockDeleteApplication.mockResolvedValueOnce(null);
+
+    const res = await deleteApplicationAction(99);
+    expect(res.ok).toBe(false);
+  });
+
+  it("deletes application and revalidates /candidatures and /offres/[id]", async () => {
+    mockDeleteApplication.mockResolvedValueOnce({ id: 7, offerId: 42 });
+
+    const res = await deleteApplicationAction(7);
+
+    expect(res).toEqual({ ok: true, data: undefined });
+    expect(mockDeleteApplication).toHaveBeenCalledWith(7);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/candidatures");
     expect(mockRevalidatePath).toHaveBeenCalledWith("/offres/42");
   });
