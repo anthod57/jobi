@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  */
-import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockGenerateDraftAction,
@@ -50,6 +50,10 @@ const BASE_APPLICATION: ApplicationWithOffer = {
 };
 
 describe("OfferApplicationPanel", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     Object.assign(navigator, {
