@@ -41,4 +41,61 @@ describe("runAtsAnalysis", () => {
       true,
     );
   });
+
+  it("uses structured CV for contact and structure rules to avoid false negatives on creative headings", () => {
+    const creativeText = "Mon parcours\nVoici ce que j'ai fait.\n".padEnd(
+      500,
+      " ",
+    );
+    const result = runAtsAnalysis(creativeText, {
+      ...baseCtx,
+      structured: {
+        contact: {
+          emails: ["alice@example.com"],
+          phones: ["06 12 34 56 78"],
+          urls: [],
+        },
+        experiences: [
+          {
+            title: "Dev",
+            company: "Acme",
+            startDate: "2022",
+            endDate: "2025",
+            highlights: [],
+          },
+        ],
+        education: [{ degree: "Master", school: "Univ", year: "2020" }],
+        skills: ["TypeScript", "React", "Node.js"],
+        softSkills: [],
+        other: [],
+      },
+    });
+
+    expect(result.findings.some((f) => f.code === "MISSING_EMAIL")).toBe(false);
+    expect(result.findings.some((f) => f.code === "MISSING_PHONE")).toBe(false);
+    expect(
+      result.findings.some((f) => f.code === "MISSING_EXPERIENCE_SECTION"),
+    ).toBe(false);
+    expect(
+      result.findings.some((f) => f.code === "MISSING_EDUCATION_SECTION"),
+    ).toBe(false);
+    expect(
+      result.findings.some((f) => f.code === "MISSING_SKILLS_SECTION"),
+    ).toBe(false);
+    expect(result.findings.some((f) => f.code === "NO_DATES_DETECTED")).toBe(
+      false,
+    );
+  });
+
+  it("flags SUSPECTED_COLUMNS when layout.isMultiColumn is true and TOO_MANY_PAGES when pageCount > 2", () => {
+    const result = runAtsAnalysis(paddedCv, {
+      ...baseCtx,
+      layout: { isMultiColumn: true, pageCount: 3 },
+    });
+
+    expect(result.findings.some((f) => f.code === "SUSPECTED_COLUMNS")).toBe(
+      true,
+    );
+    expect(result.findings.some((f) => f.code === "TOO_MANY_PAGES")).toBe(true);
+  });
 });
