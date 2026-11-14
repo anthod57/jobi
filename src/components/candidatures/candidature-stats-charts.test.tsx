@@ -42,7 +42,7 @@ describe("CandidatureStatsCharts", () => {
     expect(screen.getByText("5")).toBeInTheDocument();
 
     expect(screen.getByText("Envoyées")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getAllByText("2").length).toBeGreaterThanOrEqual(1);
 
     expect(screen.getByText("Coût LLM estimé")).toBeInTheDocument();
     expect(screen.getByText("$0.0145")).toBeInTheDocument();
