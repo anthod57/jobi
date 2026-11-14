@@ -1,3 +1,5 @@
+import type { CvLayoutMeta, StructuredCv } from "../cv-sections";
+
 export type AtsSeverity = "error" | "warning" | "info";
 export type AtsCategory =
   | "contact"
@@ -24,6 +26,8 @@ export type AtsContext = {
   profileSkills: string[];
   profileEmail: string;
   profilePhone: string;
+  structured?: StructuredCv;
+  layout?: CvLayoutMeta;
 };
 
 export type AtsRule = (text: string, ctx: AtsContext) => AtsFinding[];

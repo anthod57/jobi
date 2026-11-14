@@ -8,7 +8,7 @@ vi.mock("@/server/db/client", () => ({
   getDb: getDbMock,
 }));
 
-import { getProfile } from "./repository";
+import { getProfile, upsertCvAfterParse } from "./repository";
 
 type SelectTerminal = "limit" | "orderBy";
 
@@ -129,6 +129,10 @@ describe("getProfile", () => {
           },
         ],
         atsAnalyzedAt,
+        structuredSections: null,
+        parseMode: "llm",
+        isMultiColumn: true,
+        pageCount: 2,
       },
     });
 
@@ -176,6 +180,10 @@ describe("getProfile", () => {
           },
         ],
         atsAnalyzedAt,
+        structuredSections: null,
+        parseMode: "llm",
+        isMultiColumn: true,
+        pageCount: 2,
       },
     });
   });
@@ -205,5 +213,60 @@ describe("getProfile", () => {
     mockDbForGetProfile({ profile: null });
 
     await expect(getProfile()).rejects.toThrow("Profil introuvable.");
+  });
+});
+
+describe("upsertCvAfterParse", () => {
+  beforeEach(() => {
+    getDbMock.mockReset();
+  });
+
+  it("persists and returns structuredSections, parseMode, isMultiColumn, and pageCount", async () => {
+    const setMock = vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue(undefined) });
+    const updateMock = vi.fn().mockReturnValue({ set: setMock });
+    const txMock = {
+      select: vi.fn(() => makeSelectChain([{ profileId: 1 }], "limit")),
+      update: updateMock,
+      insert: vi.fn(),
+    };
+    getDbMock.mockReturnValue({
+      transaction: vi.fn(async (cb: (tx: typeof txMock) => Promise<void>) => cb(txMock)),
+    });
+
+    const structured = {
+      contact: { emails: ["a@b.com"], phones: [], urls: [] },
+      experiences: [],
+      education: [],
+      skills: ["TypeScript"],
+      softSkills: [],
+      other: [],
+    };
+
+    const dto = await upsertCvAfterParse(
+      "cv.pdf",
+      "application/pdf",
+      "CV text",
+      ["TypeScript"],
+      "a@b.com",
+      "",
+      {
+        structured,
+        parseMode: "llm",
+        layout: { isMultiColumn: true, pageCount: 2 },
+      },
+    );
+
+    expect(dto.structuredSections).toEqual(structured);
+    expect(dto.parseMode).toBe("llm");
+    expect(dto.isMultiColumn).toBe(true);
+    expect(dto.pageCount).toBe(2);
+    expect(setMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        structuredSections: structured,
+        parseMode: "llm",
+        isMultiColumn: true,
+        pageCount: 2,
+      }),
+    );
   });
 });

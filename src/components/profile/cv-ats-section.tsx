@@ -11,9 +11,10 @@ import { AtsDisplay } from "./ats-display";
 
 type CvAtsSectionProps = {
   cv: ProfileCvDto | null;
+  hasLlmKey?: boolean;
 };
 
-export function CvAtsSection({ cv }: CvAtsSectionProps) {
+export function CvAtsSection({ cv, hasLlmKey = false }: CvAtsSectionProps) {
   const router = useRouter();
   const [uploadedCv, setUploadedCv] = useState<ProfileCvDto | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -93,7 +94,7 @@ export function CvAtsSection({ cv }: CvAtsSectionProps) {
             <Alert variant={uploadMessage.variant}>{uploadMessage.text}</Alert>
           ) : null}
         </div>
-        <AtsDisplay cv={uploadedCv ?? cv} />
+        <AtsDisplay cv={uploadedCv ?? cv} hasLlmKey={hasLlmKey} />
       </div>
     </Card>
   );

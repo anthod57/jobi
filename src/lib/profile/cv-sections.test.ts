@@ -1,9 +1,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import { parseCvStructured } from "./cv-llm-parser";
 import { parseCvBuffer } from "./cv-parse";
-import { extractCvSections } from "./cv-sections";
+import {
+  extractCvSections,
+  extractCvStructuredDeterministic,
+  structuredCvSchema,
+} from "./cv-sections";
 
 describe("extractCvSections", () => {
   it("splits contact, experiences, skills, soft-skills, education, and other lines", () => {
@@ -70,5 +75,121 @@ describe("extractCvSections", () => {
       education: [],
       other: [],
     });
+  });
+});
+
+describe("structuredCvSchema", () => {
+  it("validates a conforming StructuredCv object", () => {
+    const valid = {
+      contact: {
+        fullName: "Alice Martin",
+        headline: "Développeuse Backend",
+        location: "Paris",
+        emails: ["alice@example.com"],
+        phones: ["+33 6 12 34 56 78"],
+        urls: ["github.com/alice"],
+      },
+      experiences: [
+        {
+          title: "Backend Engineer",
+          company: "Acme",
+          startDate: "2022",
+          endDate: "Présent",
+          highlights: ["Node.js", "PostgreSQL"],
+        },
+      ],
+      education: [
+        {
+          degree: "Master Informatique",
+          school: "Paris-Saclay",
+          year: "2020",
+        },
+      ],
+      skills: ["TypeScript", "PostgreSQL"],
+      softSkills: ["Autonomie"],
+      other: ["Français (natif)"],
+    };
+    expect(structuredCvSchema.safeParse(valid).success).toBe(true);
+    expect(structuredCvSchema.safeParse({ contact: {} }).success).toBe(false);
+  });
+});
+
+describe("extractCvStructuredDeterministic", () => {
+  it("handles extended headers, subtitle filtering, strict separation, skill dedup, and URL normalization", () => {
+    const text = [
+      "Alice Martin",
+      "Développeuse Full-Stack",
+      "alice@example.com | +33 6 12 34 56 78 | https://www.linkedin.com/in/alice-martin/ | https://github.com/alicem/",
+      "COMPÉTENCES TECHNIQUES",
+      "Langages : TypeScript, Python, typescript",
+      "Outils : Docker, PostgreSQL",
+      "QUALITÉS PERSONNELLES",
+      "Leadership, Communication",
+      "EXPÉRIENCES PROFESSIONNELLES",
+      "Backend Engineer — Acme (2022 - 2025)",
+      "- API REST Node.js",
+      "DIPLÔMES ET FORMATIONS",
+      "Master Informatique — Paris-Saclay (2020)",
+      "LANGUES",
+      "Anglais (C1)",
+      "CENTRES D'INTÉRÊT",
+      "Escalade",
+    ].join("\n");
+
+    const structured = extractCvStructuredDeterministic(text);
+
+    expect(structured.contact.emails).toEqual(["alice@example.com"]);
+    expect(structured.contact.urls).toEqual([
+      "linkedin.com/in/alice-martin",
+      "github.com/alicem",
+    ]);
+    expect(structured.skills).toEqual([
+      "TypeScript",
+      "Python",
+      "Docker",
+      "PostgreSQL",
+    ]);
+    expect(structured.softSkills).toEqual(["Leadership", "Communication"]);
+    expect(structured.other).toEqual(
+      expect.arrayContaining(["Anglais (C1)", "Escalade"]),
+    );
+    expect(structured.skills).not.toContain("Anglais (C1)");
+    expect(structured.skills).not.toContain("Escalade");
+    expect(structured.experiences.length).toBeGreaterThanOrEqual(1);
+    expect(structured.experiences[0].title).toContain("Backend Engineer");
+    expect(structured.education.length).toBeGreaterThanOrEqual(1);
+    expect(structured.education[0].degree).toContain("Master Informatique");
+  });
+});
+
+describe("parseCvStructured", () => {
+  it("uses LLM result when available and normalizes/deduplicates it", async () => {
+    const out = await parseCvStructured("Bob\nbob@example.com", async () => ({
+      contact: {
+        fullName: "Bob",
+        emails: ["bob@example.com"],
+        phones: [],
+        urls: ["https://www.github.com/bob/"],
+      },
+      experiences: [],
+      education: [],
+      skills: ["React", "react", "TypeScript"],
+      softSkills: ["Rigueur"],
+      other: [],
+    }));
+    expect(out.mode).toBe("llm");
+    expect(out.structured.skills).toEqual(["React", "TypeScript"]);
+    expect(out.structured.contact.urls).toEqual(["github.com/bob"]);
+  });
+
+  it("falls back silently to deterministic mode when LLM returns null or throws", async () => {
+    const out = await parseCvStructured(
+      "Bob\nbob@example.com\nCOMPÉTENCES\nTypeScript, Node.js",
+      async () => {
+        throw new Error("timeout");
+      },
+    );
+    expect(out.mode).toBe("deterministic");
+    expect(out.structured.skills).toEqual(["TypeScript", "Node.js"]);
   });
 });

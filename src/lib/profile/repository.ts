@@ -3,6 +3,11 @@ import { asc, eq } from "drizzle-orm";
 import type { ProfileUpdateInput } from "@/lib/profile/schemas";
 import { runAtsAnalysis } from "@/lib/profile/ats/runAtsAnalysis";
 import type { AtsFinding } from "@/lib/profile/ats/types";
+import type {
+  CvLayoutMeta,
+  CvParseMode,
+  StructuredCv,
+} from "@/lib/profile/cv-sections";
 import { getDb } from "@/server/db/client";
 import {
   profileCv,
@@ -32,6 +37,10 @@ export type ProfileCvDto = {
   atsScore: number | null;
   atsFindings: AtsFinding[];
   atsAnalyzedAt: Date | null;
+  structuredSections: StructuredCv | null;
+  parseMode: CvParseMode;
+  isMultiColumn: boolean;
+  pageCount: number;
 };
 
 export type ProfileDto = {
@@ -61,6 +70,10 @@ function mapCvRow(
     atsScore: row.atsScore,
     atsFindings: (row.atsFindings as AtsFinding[]) ?? [],
     atsAnalyzedAt: row.atsAnalyzedAt,
+    structuredSections: (row.structuredSections as StructuredCv | null) ?? null,
+    parseMode: (row.parseMode as CvParseMode) ?? "deterministic",
+    isMultiColumn: row.isMultiColumn ?? false,
+    pageCount: row.pageCount ?? 1,
   };
 }
 
@@ -131,11 +144,15 @@ async function runAndPersistAts(
   profileEmail: string,
   profilePhone: string,
   skillLabels: string[],
+  structured?: StructuredCv | null,
+  layout?: CvLayoutMeta,
 ): Promise<AtsFinding[]> {
   const ats = runAtsAnalysis(extractedText, {
     profileSkills: skillLabels,
     profileEmail,
     profilePhone,
+    structured: structured ?? undefined,
+    layout,
   });
   const now = new Date();
   await tx
@@ -214,10 +231,23 @@ export async function saveProfile(input: ProfileUpdateInput): Promise<void> {
         input.email,
         input.phone,
         input.skills,
+        cvRow?.structuredSections as StructuredCv | null | undefined,
+        cvRow
+          ? {
+              isMultiColumn: cvRow.isMultiColumn ?? false,
+              pageCount: cvRow.pageCount ?? 1,
+            }
+          : undefined,
       );
     }
   });
 }
+
+export type UpsertCvMeta = {
+  structured?: StructuredCv | null;
+  parseMode?: CvParseMode;
+  layout?: CvLayoutMeta;
+};
 
 export async function upsertCvAfterParse(
   originalFilename: string,
@@ -226,13 +256,21 @@ export async function upsertCvAfterParse(
   skillLabels: string[],
   profileEmail: string,
   profilePhone: string,
+  meta: UpsertCvMeta = {},
 ): Promise<ProfileCvDto> {
   const db = getDb();
   const now = new Date();
+  const structuredSections = meta.structured ?? null;
+  const parseMode: CvParseMode = meta.parseMode ?? "deterministic";
+  const isMultiColumn = meta.layout?.isMultiColumn ?? false;
+  const pageCount = meta.layout?.pageCount ?? 1;
+
   const ats = runAtsAnalysis(extractedText, {
     profileSkills: skillLabels,
     profileEmail,
     profilePhone,
+    structured: structuredSections ?? undefined,
+    layout: { isMultiColumn, pageCount },
   });
 
   await db.transaction(async (tx) => {
@@ -252,6 +290,10 @@ export async function upsertCvAfterParse(
           atsScore: ats.score,
           atsFindings: ats.findings,
           atsAnalyzedAt: now,
+          structuredSections,
+          parseMode,
+          isMultiColumn,
+          pageCount,
         })
         .where(eq(profileCv.profileId, PROFILE_ID));
     } else {
@@ -264,6 +306,10 @@ export async function upsertCvAfterParse(
         atsScore: ats.score,
         atsFindings: ats.findings,
         atsAnalyzedAt: now,
+        structuredSections,
+        parseMode,
+        isMultiColumn,
+        pageCount,
       });
     }
   });
@@ -276,5 +322,9 @@ export async function upsertCvAfterParse(
     atsScore: ats.score,
     atsFindings: ats.findings,
     atsAnalyzedAt: now,
+    structuredSections,
+    parseMode,
+    isMultiColumn,
+    pageCount,
   };
 }

@@ -1,4 +1,4 @@
-import type { AtsFinding, AtsRule } from "../types";
+import type { AtsContext, AtsFinding, AtsRule } from "../types";
 import {
   dateFormatFamiliesPresent,
   hasAnyDatePattern,
@@ -10,8 +10,12 @@ function finding(partial: Omit<AtsFinding, "category">): AtsFinding {
 }
 
 export const dateRules: AtsRule[] = [
-  (text: string) => {
-    if (!hasAnyDatePattern(text)) {
+  (text: string, ctx: AtsContext) => {
+    const hasStructuredDates =
+      ctx.structured?.experiences.some(
+        (exp) => Boolean(exp.startDate.trim() || exp.endDate.trim()),
+      ) ?? false;
+    if (!hasAnyDatePattern(text) && !hasStructuredDates) {
       return [
         finding({
           code: "NO_DATES_DETECTED",

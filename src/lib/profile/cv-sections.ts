@@ -1,8 +1,81 @@
+import { z } from "zod";
 import {
   findEmails,
   linesOf,
   normalizeForMatch,
 } from "@/lib/profile/ats/text-helpers";
+import type { CvLayoutMeta } from "./cv-parse";
+
+export type { CvLayoutMeta };
+
+export type CvParseMode = "llm" | "deterministic";
+
+export interface CvStructuredExperience {
+  title: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  highlights: string[];
+}
+
+export interface CvStructuredEducation {
+  degree: string;
+  school: string;
+  year: string;
+}
+
+export interface CvStructuredContact {
+  fullName?: string;
+  headline?: string;
+  location?: string;
+  emails: string[];
+  phones: string[];
+  urls: string[];
+}
+
+export interface StructuredCv {
+  contact: CvStructuredContact;
+  experiences: CvStructuredExperience[];
+  education: CvStructuredEducation[];
+  skills: string[];
+  softSkills: string[];
+  other: string[];
+}
+
+export interface StructuredParseOutput {
+  structured: StructuredCv;
+  mode: CvParseMode;
+}
+
+export const structuredCvSchema = z.object({
+  contact: z.object({
+    fullName: z.string().optional(),
+    headline: z.string().optional(),
+    location: z.string().optional(),
+    emails: z.array(z.string()),
+    phones: z.array(z.string()),
+    urls: z.array(z.string()),
+  }),
+  experiences: z.array(
+    z.object({
+      title: z.string(),
+      company: z.string(),
+      startDate: z.string(),
+      endDate: z.string(),
+      highlights: z.array(z.string()),
+    }),
+  ),
+  education: z.array(
+    z.object({
+      degree: z.string(),
+      school: z.string(),
+      year: z.string(),
+    }),
+  ),
+  skills: z.array(z.string()),
+  softSkills: z.array(z.string()),
+  other: z.array(z.string()),
+});
 
 export type CvSectionKey =
   | "contact"
@@ -37,7 +110,7 @@ const SECTION_HEADINGS: { key: CvSectionKey; pattern: RegExp }[] = [
   {
     key: "education",
     pattern:
-      /^(?:formations?(?:\s+&\s+diplomes)?|diplomes?|education|etudes|certifications?)$/,
+      /^(?:diplomes?(?:\s+et\s+formations?)?|formations?(?:\s+(?:&|et)\s+diplomes?)?|education|etudes|certifications?)$/,
   },
   {
     key: "contact",
@@ -45,7 +118,8 @@ const SECTION_HEADINGS: { key: CvSectionKey; pattern: RegExp }[] = [
   },
   {
     key: "other",
-    pattern: /^(?:langues|languages|projets|projects|centres\s+d['’]interet|interets|profil|a\s+propos|resume)$/,
+    pattern:
+      /^(?:langues|languages|projets|projects|centres\s+d['’]interet|interets|loisirs|profil|a\s+propos|resume)$/,
   },
 ];
 
@@ -65,17 +139,133 @@ function detectSectionHeading(line: string): CvSectionKey | null {
 function splitSkillTokens(line: string): string[] {
   const cleaned = line.replace(/^[-•*]\s*/, "").trim();
   if (!cleaned) return [];
-  if (/[•|,]/.test(cleaned)) {
-    return cleaned
+  // Strip category subtitle prefix such as "Langages : TypeScript, Python"
+  const colonIdx = cleaned.indexOf(":");
+  const body =
+    colonIdx > 0 && colonIdx < 35 && !/^https?:/i.test(cleaned)
+      ? cleaned.slice(colonIdx + 1).trim()
+      : cleaned;
+  if (!body) return [];
+  if (/[•|,]/.test(body)) {
+    return body
       .split(/[•|,]/)
       .map((item) => item.trim())
-      .filter(Boolean);
+      .filter((item) => item.length > 0 && !item.endsWith(":"));
   }
-  return [cleaned];
+  return body.endsWith(":") ? [] : [body];
 }
 
 function dedupe(items: string[]): string[] {
   return [...new Set(items)];
+}
+
+function dedupeCaseInsensitive(items: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of items) {
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(trimmed);
+  }
+  return out;
+}
+
+function normalizeCvUrl(rawUrl: string): string {
+  return rawUrl
+    .trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .replace(/\/+$/, "");
+}
+
+export function normalizeStructuredCv(cv: StructuredCv): StructuredCv {
+  return {
+    contact: {
+      ...cv.contact,
+      emails: dedupeCaseInsensitive(cv.contact.emails),
+      phones: dedupe(cv.contact.phones.map((p) => p.trim()).filter(Boolean)),
+      urls: dedupeCaseInsensitive(cv.contact.urls.map(normalizeCvUrl)),
+    },
+    experiences: cv.experiences.map((exp) => ({
+      ...exp,
+      title: exp.title.trim(),
+      company: exp.company.trim(),
+      startDate: exp.startDate.trim(),
+      endDate: exp.endDate.trim(),
+      highlights: exp.highlights.map((h) => h.trim()).filter(Boolean),
+    })),
+    education: cv.education.map((edu) => ({
+      ...edu,
+      degree: edu.degree.trim(),
+      school: edu.school.trim(),
+      year: edu.year.trim(),
+    })),
+    skills: dedupeCaseInsensitive(cv.skills),
+    softSkills: dedupeCaseInsensitive(cv.softSkills),
+    other: dedupe(cv.other.map((o) => o.trim()).filter(Boolean)),
+  };
+}
+
+function parseExperienceLines(lines: string[]): CvStructuredExperience[] {
+  const experiences: CvStructuredExperience[] = [];
+  const dateRangeRe =
+    /\(?\s*(\d{4}|(?:janv?|fevr?|mars|avr|mai|juin|juil|aout|sept?|oct|nov|dec)[a-z.]*\s+\d{4})\s*[-–—]\s*(\d{4}|present|aujourd'hui|actuel|(?:janv?|fevr?|mars|avr|mai|juin|juil|aout|sept?|oct|nov|dec)[a-z.]*\s+\d{4})\s*\)?/i;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    if (/^[-•*]\s+/.test(line) && experiences.length > 0) {
+      experiences[experiences.length - 1].highlights.push(
+        line.replace(/^[-•*]\s+/, "").trim(),
+      );
+      continue;
+    }
+
+    const dateMatch = line.match(dateRangeRe);
+    const startDate = dateMatch ? dateMatch[1].trim() : "";
+    const endDate = dateMatch ? dateMatch[2].trim() : "";
+    const withoutDates = dateMatch
+      ? line.replace(dateMatch[0], "").trim()
+      : line;
+
+    const parts = withoutDates.split(/\s+[—–-]\s+|\s+@\s+/);
+    const title = (parts[0] ?? withoutDates).trim();
+    const company = (parts[1] ?? "").trim();
+
+    experiences.push({
+      title: title || line,
+      company,
+      startDate,
+      endDate,
+      highlights: [],
+    });
+  }
+
+  return experiences;
+}
+
+function parseEducationLines(lines: string[]): CvStructuredEducation[] {
+  const education: CvStructuredEducation[] = [];
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    const yearMatch = line.match(/\b(19\d{2}|20\d{2})\b/);
+    const year = yearMatch ? yearMatch[1] : "";
+    const withoutYear = year
+      ? line.replace(new RegExp(`\\(?\\s*${year}\\s*\\)?`), "").trim()
+      : line;
+    const parts = withoutYear.split(/\s+[—–-]\s+/);
+    education.push({
+      degree: (parts[0] ?? withoutYear).trim() || line,
+      school: (parts[1] ?? "").trim(),
+      year,
+    });
+  }
+  return education;
 }
 
 /** Splits extracted CV text into structured sections for UI preview. */
@@ -127,8 +317,42 @@ export function extractCvSections(text: string): CvExtractedSections {
   }
 
   result.contact = dedupe(result.contact);
-  result.skills = dedupe(result.skills);
-  result.softSkills = dedupe(result.softSkills);
+  result.skills = dedupeCaseInsensitive(result.skills);
+  result.softSkills = dedupeCaseInsensitive(result.softSkills);
 
   return result;
+}
+
+/** Deterministic structured CV extraction (100% local, zero LLM). */
+export function extractCvStructuredDeterministic(text: string): StructuredCv {
+  const sections = extractCvSections(text);
+  const emails = findEmails(text);
+  const phones = (text.match(PHONE_EXTRACT_PATTERN) ?? []).map((p) => p.trim());
+  const urls = (text.match(URL_EXTRACT_PATTERN) ?? []).map(normalizeCvUrl);
+
+  const firstLines = linesOf(text)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  const fullName =
+    firstLines[0] &&
+    !firstLines[0].includes("@") &&
+    !/https?:\/\//i.test(firstLines[0]) &&
+    !detectSectionHeading(firstLines[0])
+      ? firstLines[0]
+      : undefined;
+
+  return normalizeStructuredCv({
+    contact: {
+      fullName,
+      emails,
+      phones,
+      urls,
+    },
+    experiences: parseExperienceLines(sections.experiences),
+    education: parseEducationLines(sections.education),
+    skills: sections.skills,
+    softSkills: sections.softSkills,
+    other: sections.other,
+  });
 }

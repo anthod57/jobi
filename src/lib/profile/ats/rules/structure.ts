@@ -11,7 +11,8 @@ function finding(partial: Omit<AtsFinding, "category">): AtsFinding {
 }
 
 export const structureRules: AtsRule[] = [
-  (text: string) => {
+  (text: string, ctx: AtsContext) => {
+    if ((ctx.structured?.experiences.length ?? 0) > 0) return [];
     if (!hasExperienceSection(text)) {
       return [
         finding({
@@ -25,7 +26,8 @@ export const structureRules: AtsRule[] = [
     }
     return [];
   },
-  (text: string) => {
+  (text: string, ctx: AtsContext) => {
+    if ((ctx.structured?.education.length ?? 0) > 0) return [];
     if (!hasEducationSection(text)) {
       return [
         finding({
@@ -39,6 +41,7 @@ export const structureRules: AtsRule[] = [
     return [];
   },
   (text: string, ctx: AtsContext) => {
+    if ((ctx.structured?.skills.length ?? 0) > 0) return [];
     if (hasSkillsSection(text)) return [];
     const matched = ctx.profileSkills.filter((s) => skillInText(s, text)).length;
     if (matched < 3) {

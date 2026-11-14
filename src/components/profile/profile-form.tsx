@@ -17,13 +17,20 @@ import { SkillsSection } from "./skills-section";
 
 type ProfileFormProps = {
   profile: ProfileDto;
+  hasLlmKey?: boolean;
 };
 
-export function ProfileForm({ profile }: ProfileFormProps) {
+export function ProfileForm({ profile, hasLlmKey = false }: ProfileFormProps) {
   const router = useRouter();
+  const [prevProfile, setPrevProfile] = useState(profile);
   const [form, setForm] = useState<ProfileUpdateInput>(() =>
     profileToFormState(profile),
   );
+
+  if (prevProfile !== profile) {
+    setPrevProfile(profile);
+    setForm(profileToFormState(profile));
+  }
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{
     variant: "success" | "failure";
@@ -96,7 +103,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         onChange={(experiences) => patchForm({ experiences })}
       />
 
-      <CvAtsSection cv={profile.cv} />
+      <CvAtsSection cv={profile.cv} hasLlmKey={hasLlmKey} />
 
       <div className="sticky bottom-0 mt-section rounded-t-lg border-t border-secondary-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 dark:border-secondary-700 dark:bg-secondary-900/95">
         <Button

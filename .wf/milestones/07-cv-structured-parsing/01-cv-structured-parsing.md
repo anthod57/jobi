@@ -2,7 +2,7 @@
 id: M7-01
 phase: 1
 role: api
-status: discuss
+status: done
 branch: milestone/07-cv-structured-parsing
 needs: [M3-02]
 ---
@@ -139,8 +139,22 @@ export async function applyStructuredCvToProfile(): Promise<SaveProfileResult>;
 
 ## Todos
 
-_(À planifier via `/wf-plan-phase M7-01`)_
+- [x] Add `structuredSections`, `parseMode`, `isMultiColumn`, and `pageCount` columns to `profileCv` in `src/server/db/schema.ts` matching Contract and generate Drizzle migration in `drizzle/`
+- [x] Test: `src/lib/profile/cv-parse.test.ts` — verify layout-aware PDF extraction (top banner + left-then-right column order on `cv-two-column-backend.pdf`, PUA icon removal, `layout.isMultiColumn`, `layout.pageCount`) and DOCX layout metadata; must fail until implemented
+- [x] Implement coordinate-based `pdfjs-dist` extraction (`y`-line grouping, top banner + vertical gutter detection, PUA strip) and `layout` metadata in `src/lib/profile/cv-parse.ts`
+- [x] Test: `src/lib/profile/cv-sections.test.ts` — verify `structuredCvSchema` Zod validation, extended headers, subtitle filtering, strict `skills`/`softSkills`/`other` separation, URL normalization, case-insensitive skill dedup, and `parseCvStructured` LLM mock + silent fallback; must fail until implemented
+- [x] Add `StructuredCv` types, `structuredCvSchema`, `extractCvStructuredDeterministic`, and `parseCvStructured` in `src/lib/profile/cv-sections.ts`
+- [x] Create `src/lib/profile/cv-llm-parser.ts` reusing LLM config from `src/lib/candidatures/llm-client.ts` with strict JSON prompt, Zod validation, and silent fallback on error/timeout
+- [x] Test: `src/lib/profile/ats/runAtsAnalysis.test.ts` — verify `AtsContext` accepts optional `structured`/`layout` and rules (`contact`, `structure`, `format`, `dates`) use `structured`, `layout.isMultiColumn`, and `pageCount > 2` with legacy backward compatibility; must fail until implemented
+- [x] Update `AtsContext` in `src/lib/profile/ats/types.ts` and rules in `src/lib/profile/ats/rules/contact.ts`, `structure.ts`, `format.ts`, `dates.ts` (plus `src/lib/profile/ats/runAtsAnalysis.ts` wiring)
+- [x] Test: `src/lib/profile/repository.test.ts` — verify `ProfileCvDto` and `upsertCvAfterParse` persist and return `structuredSections`, `parseMode`, `isMultiColumn`, and `pageCount`; must fail until implemented
+- [x] Update `ProfileCvDto` and `upsertCvAfterParse` in `src/lib/profile/repository.ts` to persist and return structured CV and layout metadata
+- [x] Test: `src/app/profil/actions.test.ts` — verify `uploadCv` hybrid parse, `reanalyzeCvWithAi`, and `applyStructuredCvToProfile` (non-destructive merge + offer rescoring); must fail until implemented
+- [x] Update `uploadCv` and implement `reanalyzeCvWithAi` and `applyStructuredCvToProfile` in `src/app/profil/actions.ts`
 
 ## UAT
 
-_(À planifier via `/wf-plan-phase M7-01`)_
+- [x] (auto) `npm test -- src/lib/profile src/app/profil/actions.test.ts` passes with all layout-aware PDF, structured parsing, LLM fallback, ATS, repository, and action tests green
+- [x] (auto) `npm run build` succeeds without TypeScript or Next.js bundling errors (including `pdfjs-dist` server externalization)
+- [x] (auto) Drizzle migration applies cleanly and `profile_cv` persists `structured_sections`, `parse_mode`, `is_multi_column`, and `page_count`
+- [x] (auto) Parsing `src/test/fixtures/cv/cv-two-column-backend.pdf` yields ordered text without column interleaving, `layout.isMultiColumn: true`, and valid `structuredSections`
