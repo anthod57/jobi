@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import { LLM_PROVIDER_LABELS } from "@/components/candidatures/labels";
+import { llmConfigSchema, llmKeySchema } from "@/lib/candidatures/schemas";
 import { saveEncryptedCredential } from "@/lib/ingestion/credentials-repository";
 import { runIngestionSync } from "@/lib/ingestion/sync";
 
@@ -151,6 +153,84 @@ export async function triggerManualIngestionAction(): Promise<SettingsActionStat
       ok: false,
       message:
         err instanceof Error ? err.message : "Erreur lors de l'import manuel.",
+    };
+  }
+}
+
+/** Validates, encrypts, and stores an LLM API key without echoing it back. */
+export async function saveLlmKeyAction(
+  _prev: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const parsed = llmKeySchema.safeParse({
+    provider: readField(formData, "provider"),
+    apiKey: readField(formData, "apiKey"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: "Fournisseur LLM invalide ou clé API trop courte (min. 8 caractères).",
+    };
+  }
+
+  const { provider, apiKey } = parsed.data;
+  const label = LLM_PROVIDER_LABELS[provider];
+
+  try {
+    await saveEncryptedCredential(`llm_${provider}`, { apiKey }, apiKey);
+    revalidatePath("/parametres");
+    revalidatePath("/candidatures");
+    return { ok: true, message: `Clé API ${label} enregistrée.` };
+  } catch (err) {
+    return {
+      ok: false,
+      message:
+        err instanceof Error
+          ? err.message
+          : `Impossible d'enregistrer la clé ${label}.`,
+    };
+  }
+}
+
+/** Validates and stores the active LLM provider and model configuration. */
+export async function saveLlmConfigAction(
+  _prev: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const parsed = llmConfigSchema.safeParse({
+    activeProvider: readField(formData, "activeProvider"),
+    model: readField(formData, "model"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: "Fournisseur actif ou nom de modèle invalide.",
+    };
+  }
+
+  const { activeProvider, model } = parsed.data;
+
+  try {
+    await saveEncryptedCredential(
+      "llm_config",
+      { activeProvider, model },
+      `${activeProvider}:${model}`,
+    );
+    revalidatePath("/parametres");
+    revalidatePath("/candidatures");
+    return {
+      ok: true,
+      message: `Configuration LLM enregistrée (${LLM_PROVIDER_LABELS[activeProvider]} · ${model}).`,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      message:
+        err instanceof Error
+          ? err.message
+          : "Impossible d'enregistrer la configuration LLM.",
     };
   }
 }
