@@ -24,6 +24,8 @@ vi.mock("next/cache", () => ({
 
 import {
   saveCronConfigAction,
+  saveLlmConfigAction,
+  saveLlmKeyAction,
   saveProviderCredentialsAction,
   triggerManualIngestionAction,
   type SettingsActionState,
@@ -195,5 +197,96 @@ describe("triggerManualIngestionAction", () => {
     expect(res.ok).toBe(true);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/parametres");
     expect(mockRevalidatePath).toHaveBeenCalledWith("/offres");
+  });
+});
+
+describe("saveLlmKeyAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rejects unknown LLM provider", async () => {
+    const fd = new FormData();
+    fd.set("provider", "gemini");
+    fd.set("apiKey", "sk-test-12345678");
+
+    const res = await saveLlmKeyAction(INITIAL_STATE, fd);
+    expect(res.ok).toBe(false);
+    expect(mockSaveEncryptedCredential).not.toHaveBeenCalled();
+  });
+
+  it("rejects too short apiKey without echoing it", async () => {
+    const fd = new FormData();
+    fd.set("provider", "mistral");
+    fd.set("apiKey", "short");
+
+    const res = await saveLlmKeyAction(INITIAL_STATE, fd);
+    expect(res.ok).toBe(false);
+    expect(res.message).not.toContain("short");
+    expect(mockSaveEncryptedCredential).not.toHaveBeenCalled();
+  });
+
+  it("encrypts and stores LLM key for mistral/openai/anthropic without echoing key", async () => {
+    mockSaveEncryptedCredential.mockResolvedValueOnce(undefined);
+    const fd = new FormData();
+    fd.set("provider", "openai");
+    fd.set("apiKey", "sk-proj-secret-abcdef1234");
+
+    const res = await saveLlmKeyAction(INITIAL_STATE, fd);
+    expect(res.ok).toBe(true);
+    expect(res.message).not.toContain("sk-proj-secret-abcdef1234");
+    expect(mockSaveEncryptedCredential).toHaveBeenCalledWith(
+      "llm_openai",
+      { apiKey: "sk-proj-secret-abcdef1234" },
+      "sk-proj-secret-abcdef1234",
+    );
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/parametres");
+  });
+
+  it("returns error message when encryption fails", async () => {
+    mockSaveEncryptedCredential.mockRejectedValueOnce(
+      new Error("APP_ENCRYPTION_KEY manquante"),
+    );
+    const fd = new FormData();
+    fd.set("provider", "anthropic");
+    fd.set("apiKey", "sk-ant-secret-123456");
+
+    const res = await saveLlmKeyAction(INITIAL_STATE, fd);
+    expect(res.ok).toBe(false);
+    expect(res.message).toContain("APP_ENCRYPTION_KEY");
+    expect(res.message).not.toContain("sk-ant-secret-123456");
+  });
+});
+
+describe("saveLlmConfigAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rejects invalid activeProvider or empty model", async () => {
+    const fd = new FormData();
+    fd.set("activeProvider", "mistral");
+    fd.set("model", "   ");
+
+    const res = await saveLlmConfigAction(INITIAL_STATE, fd);
+    expect(res.ok).toBe(false);
+    expect(mockSaveEncryptedCredential).not.toHaveBeenCalled();
+  });
+
+  it("saves active LLM provider and model and revalidates", async () => {
+    mockSaveEncryptedCredential.mockResolvedValueOnce(undefined);
+    const fd = new FormData();
+    fd.set("activeProvider", "anthropic");
+    fd.set("model", "claude-3-5-sonnet-latest");
+
+    const res = await saveLlmConfigAction(INITIAL_STATE, fd);
+    expect(res.ok).toBe(true);
+    expect(mockSaveEncryptedCredential).toHaveBeenCalledWith(
+      "llm_config",
+      { activeProvider: "anthropic", model: "claude-3-5-sonnet-latest" },
+      "anthropic:claude-3-5-sonnet-latest",
+    );
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/parametres");
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/candidatures");
   });
 });
