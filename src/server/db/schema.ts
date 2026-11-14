@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import type { StructuredCv } from "@/lib/profile/cv-sections";
 import {
   boolean,
   check,
@@ -115,6 +116,14 @@ export const profileCv = pgTable(
       withTimezone: true,
       mode: "date",
     }),
+    structuredSections: jsonb("structured_sections")
+      .$type<StructuredCv | null>()
+      .default(null),
+    parseMode: varchar("parse_mode", { length: 20 })
+      .notNull()
+      .default("deterministic"),
+    isMultiColumn: boolean("is_multi_column").notNull().default(false),
+    pageCount: smallint("page_count").notNull().default(1),
   },
   (table) => [
     check(
