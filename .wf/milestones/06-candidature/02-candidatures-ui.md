@@ -84,6 +84,7 @@ export async function updateApplicationAction(input: {
 - [x] fix: retry OpenAI-compatible calls without temperature when HTTP 400 rejects temperature
 - [x] fix: append profile fullName signature locally after LLM draft generation and place OfferApplicationPanel below ScoreBreakdownCard on lg screens
 - [x] fix: stack Ton and Consigne particulière full-width in OfferApplicationPanel for narrow sidebar column
+- [x] feat(prompt): adapt and improve letter.md prompt rules in buildApplicationPrompt
 
 ## UAT
 
