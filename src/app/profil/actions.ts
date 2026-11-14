@@ -141,69 +141,80 @@ export async function applyStructuredCvToProfile(): Promise<SaveProfileResult> {
       return { ok: false, error: "Aucune donnée structurée de CV disponible." };
     }
 
-    const existingSkillKeys = new Set(
-      profile.skills.map((s) => s.label.trim().toLowerCase()),
-    );
-    const mergedSkills = [...profile.skills.map((s) => s.label)];
+    const seenSkillKeys = new Set<string>();
+    const cvSkills: string[] = [];
     for (const skill of structured.skills) {
       const trimmed = skill.trim().slice(0, 120);
       if (!trimmed) continue;
       const key = trimmed.toLowerCase();
-      if (existingSkillKeys.has(key)) continue;
-      existingSkillKeys.add(key);
-      if (mergedSkills.length < 80) mergedSkills.push(trimmed);
+      if (seenSkillKeys.has(key)) continue;
+      seenSkillKeys.add(key);
+      if (cvSkills.length < 80) cvSkills.push(trimmed);
     }
+    const nextSkills =
+      cvSkills.length > 0 ? cvSkills : profile.skills.map((s) => s.label);
 
-    const existingExpKeys = new Set(
-      profile.experiences.map(
-        (e) => `${e.title.trim().toLowerCase()}::${e.company.trim().toLowerCase()}`,
-      ),
-    );
-    const mergedExperiences = profile.experiences.map((e, idx) => ({
-      title: e.title,
-      company: e.company,
-      location: e.location,
-      startDate: e.startDate,
-      endDate: e.endDate,
-      description: e.description,
-      sortOrder: idx,
-    }));
-
+    const seenExpKeys = new Set<string>();
+    const cvExperiences: ProfileUpdateInput["experiences"] = [];
     const fallbackStartDate = `${new Date().getFullYear()}-01-01`;
     for (const exp of structured.experiences) {
       const title = exp.title.trim().slice(0, 200);
       if (!title) continue;
       const company = exp.company.trim().slice(0, 200);
       const key = `${title.toLowerCase()}::${company.toLowerCase()}`;
-      if (existingExpKeys.has(key) || mergedExperiences.length >= 40) continue;
-      existingExpKeys.add(key);
-      mergedExperiences.push({
+      if (seenExpKeys.has(key) || cvExperiences.length >= 40) continue;
+      seenExpKeys.add(key);
+      cvExperiences.push({
         title,
         company,
         location: "",
         startDate: toIsoDateOrNull(exp.startDate) ?? fallbackStartDate,
         endDate: toIsoDateOrNull(exp.endDate),
         description: exp.highlights.join("\n").slice(0, 8000),
-        sortOrder: mergedExperiences.length,
+        sortOrder: cvExperiences.length,
       });
     }
+    const nextExperiences =
+      cvExperiences.length > 0
+        ? cvExperiences
+        : profile.experiences.map((e, idx) => ({
+            title: e.title,
+            company: e.company,
+            location: e.location,
+            startDate: e.startDate,
+            endDate: e.endDate,
+            description: e.description,
+            sortOrder: idx,
+          }));
 
     const candidateInput: ProfileUpdateInput = {
-      fullName: (profile.fullName.trim() || structured.contact.fullName?.trim() || "").slice(0, 200),
-      headline: (profile.headline.trim() || structured.contact.headline?.trim() || "").slice(0, 300),
-      email: profile.email.trim() || structured.contact.emails[0]?.trim() || "",
-      phone: (profile.phone.trim() || structured.contact.phones[0]?.trim() || "").slice(0, 40),
+      fullName: (
+        structured.contact.fullName?.trim() ||
+        profile.fullName.trim() ||
+        ""
+      ).slice(0, 200),
+      headline: (
+        structured.contact.headline?.trim() ||
+        profile.headline.trim() ||
+        ""
+      ).slice(0, 300),
+      email: structured.contact.emails[0]?.trim() || profile.email.trim() || "",
+      phone: (
+        structured.contact.phones[0]?.trim() ||
+        profile.phone.trim() ||
+        ""
+      ).slice(0, 40),
       locationLabel: (
-        profile.locationLabel.trim() ||
         structured.contact.location?.trim() ||
+        profile.locationLabel.trim() ||
         "Non renseigné"
       ).slice(0, 200),
       searchRadiusKm: profile.searchRadiusKm,
       remotePreference: profile.remotePreference,
       minSalaryAnnualGross: profile.minSalaryAnnualGross,
       contractTypes: profile.contractTypes,
-      skills: mergedSkills,
-      experiences: mergedExperiences,
+      skills: nextSkills,
+      experiences: nextExperiences,
     };
 
     const validated = profileUpdateInputSchema.safeParse(candidateInput);

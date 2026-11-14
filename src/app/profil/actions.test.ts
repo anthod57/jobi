@@ -203,9 +203,26 @@ describe("profil actions (M7-01)", () => {
     expect(mockRecomputeScores).toHaveBeenCalled();
   });
 
-  it("applyStructuredCvToProfile merges non-destructively and rescores offers", async () => {
+  it("applyStructuredCvToProfile overwrites existing profile fields with CV data and rescores offers", async () => {
     mockLoadProfile.mockResolvedValueOnce({
       ...baseProfile,
+      fullName: "Ancien Nom",
+      headline: "Ancien Titre",
+      phone: "+33 6 00 00 00 00",
+      locationLabel: "Marseille",
+      skills: [{ id: 1, label: "OldSkill", sortOrder: 0 }],
+      experiences: [
+        {
+          id: 10,
+          title: "Old Job",
+          company: "Old Co",
+          location: "",
+          startDate: "2019-01-01",
+          endDate: "2020-01-01",
+          description: "",
+          sortOrder: 0,
+        },
+      ],
       cv: {
         originalFilename: "cv.pdf",
         mimeType: "application/pdf",
@@ -227,10 +244,10 @@ describe("profil actions (M7-01)", () => {
       expect.objectContaining({
         fullName: "Alice Martin",
         headline: "Ingénieure Backend",
-        email: "existing@example.com",
+        email: "alice@example.com",
         phone: "+33 6 12 34 56 78",
         locationLabel: "Lyon",
-        skills: ["TypeScript", "PostgreSQL", "Docker"],
+        skills: ["typescript", "PostgreSQL", "Docker"],
         experiences: [
           expect.objectContaining({
             title: "Backend Dev",
