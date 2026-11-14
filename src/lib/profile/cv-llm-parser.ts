@@ -59,6 +59,31 @@ function extractJsonObject(rawText: string): unknown {
   return JSON.parse(candidate.slice(start, end + 1));
 }
 
+async function resolveActiveLlmConfig() {
+  const config =
+    await getDecryptedCredential<LlmConfigCredential>("llm_config");
+  const activeProvider = config?.activeProvider ?? "mistral";
+  const model =
+    config?.model?.trim() || getDefaultModelForProvider(activeProvider);
+
+  const keyCred = await getDecryptedCredential<LlmApiKeyCredential>(
+    `llm_${activeProvider}`,
+  );
+  const apiKey = keyCred?.apiKey?.trim();
+  if (!apiKey) return null;
+
+  return { activeProvider, model, apiKey };
+}
+
+/** Returns true when an API key is configured for the active LLM provider. */
+export async function hasConfiguredLlmKey(): Promise<boolean> {
+  try {
+    return (await resolveActiveLlmConfig()) !== null;
+  } catch {
+    return false;
+  }
+}
+
 /** Parses CV text via the user's configured LLM; returns null on missing key or any failure. */
 export async function parseCvWithLlm(
   text: string,
@@ -66,23 +91,20 @@ export async function parseCvWithLlm(
   if (!text.trim()) return null;
 
   try {
-    const config =
-      await getDecryptedCredential<LlmConfigCredential>("llm_config");
-    const activeProvider = config?.activeProvider ?? "mistral";
-    const model =
-      config?.model?.trim() || getDefaultModelForProvider(activeProvider);
-
-    const keyCred = await getDecryptedCredential<LlmApiKeyCredential>(
-      `llm_${activeProvider}`,
-    );
-    if (!keyCred?.apiKey?.trim()) {
+    const resolved = await resolveActiveLlmConfig();
+    if (!resolved) {
       return null;
     }
 
-    const raw = await callLlmRaw(activeProvider, keyCred.apiKey, model, {
-      system: CV_LLM_SYSTEM_PROMPT,
-      user: text.slice(0, 24_000),
-    });
+    const raw = await callLlmRaw(
+      resolved.activeProvider,
+      resolved.apiKey,
+      resolved.model,
+      {
+        system: CV_LLM_SYSTEM_PROMPT,
+        user: text.slice(0, 24_000),
+      },
+    );
 
     const parsed = extractJsonObject(raw.text);
     return parsed && typeof parsed === "object"
