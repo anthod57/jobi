@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { profileUpdateInputSchema, type ProfileUpdateInput } from "@/lib/profile/schemas";
 import { parseCvBuffer, CV_MAX_BYTES } from "@/lib/profile/cv-parse";
 import {
@@ -32,6 +34,8 @@ export async function saveProfile(
   try {
     await persistProfile(parsed.data);
     await recomputeScoresForAllOffers();
+    revalidatePath("/profil");
+    revalidatePath("/offres");
     return { ok: true };
   } catch {
     return { ok: false, error: "Enregistrement du profil impossible." };
@@ -68,6 +72,8 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
       profile.phone,
     );
     await recomputeScoresForAllOffers();
+    revalidatePath("/profil");
+    revalidatePath("/offres");
     return { ok: true };
   } catch {
     return { ok: false, error: "Impossible d'enregistrer le CV." };

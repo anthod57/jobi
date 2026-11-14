@@ -1,7 +1,7 @@
 ---
 id: T-007
 type: bug
-status: open
+status: done
 severity: high
 created: 2026-11-14
 ---
@@ -23,4 +23,4 @@ created: 2026-11-14
 - À vérifier : appel API / mutation de sauvegarde en BDD et chargement/hydratation côté front au démarrage.
 
 ## Todos
-- [ ] fix: vérifier la persistance en BDD et l'hydratation du profil au chargement du front
+- [x] fix: vérifier la persistance en BDD et l'hydratation du profil au chargement du front
