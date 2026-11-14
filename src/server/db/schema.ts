@@ -239,3 +239,68 @@ export const offerScores = pgTable(
     ),
   ],
 );
+
+export const applicationStatusEnum = pgEnum("application_status", [
+  "draft",
+  "validated",
+  "sent",
+  "archived",
+]);
+
+export const applicationToneEnum = pgEnum("application_tone", [
+  "professional",
+  "direct",
+  "enthusiastic",
+]);
+
+export const llmProviderEnum = pgEnum("llm_provider", [
+  "mistral",
+  "openai",
+  "anthropic",
+]);
+
+export const applications = pgTable(
+  "applications",
+  {
+    id: serial("id").primaryKey(),
+    offerId: integer("offer_id")
+      .notNull()
+      .references(() => jobOffers.id, { onDelete: "cascade" }),
+    status: applicationStatusEnum("status").notNull().default("draft"),
+    tone: applicationToneEnum("tone").notNull().default("professional"),
+    customInstructions: text("custom_instructions").notNull().default(""),
+    draftSubject: varchar("draft_subject", { length: 300 }).notNull().default(""),
+    draftBody: text("draft_body").notNull().default(""),
+    notes: text("notes").notNull().default(""),
+    provider: llmProviderEnum("provider").notNull(),
+    model: varchar("model", { length: 120 }).notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("applications_offer_id_unique").on(table.offerId),
+  ],
+);
+
+export const llmUsageLogs = pgTable("llm_usage_logs", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id")
+    .notNull()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  provider: llmProviderEnum("provider").notNull(),
+  model: varchar("model", { length: 120 }).notNull(),
+  promptTokens: integer("prompt_tokens").notNull().default(0),
+  completionTokens: integer("completion_tokens").notNull().default(0),
+  totalTokens: integer("total_tokens").notNull().default(0),
+  estimatedCostUsd: varchar("estimated_cost_usd", { length: 24 })
+    .notNull()
+    .default("0"),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+});

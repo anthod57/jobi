@@ -5,10 +5,13 @@ import { useActionState, useState, useTransition } from "react";
 
 import {
   saveCronConfigAction,
+  saveLlmConfigAction,
+  saveLlmKeyAction,
   saveProviderCredentialsAction,
   triggerManualIngestionAction,
   type SettingsActionState,
 } from "@/app/parametres/actions";
+import { LLM_PROVIDER_LABELS } from "@/components/candidatures/labels";
 import {
   Alert,
   Badge,
@@ -19,9 +22,12 @@ import {
   Label,
   Select,
 } from "@/components/ui";
+import { getDefaultModelForProvider } from "@/lib/candidatures/pricing";
+import type { LlmProvider } from "@/lib/candidatures/types";
 import type {
   CredentialStatus,
   IngestionCronConfig,
+  LlmConfigCredential,
 } from "@/lib/ingestion/credentials-repository";
 import type { IngestionRunSummary } from "@/lib/ingestion/sync";
 
@@ -30,6 +36,8 @@ export type SettingsPanelProps = {
   adzuna: CredentialStatus;
   cronConfig: IngestionCronConfig;
   runs: IngestionRunSummary[];
+  llmStatuses?: Record<LlmProvider, CredentialStatus>;
+  llmConfig?: LlmConfigCredential;
 };
 
 const INITIAL_STATE: SettingsActionState = { ok: false, message: "" };
@@ -81,11 +89,71 @@ function ProviderStatusBadge({ status }: { status: CredentialStatus }) {
   );
 }
 
+const LLM_PROVIDERS: readonly LlmProvider[] = ["mistral", "openai", "anthropic"];
+
+function emptyLlmStatus(provider: LlmProvider): CredentialStatus {
+  return {
+    provider: `llm_${provider}`,
+    configured: false,
+    keyHint: "",
+    updatedAt: null,
+  };
+}
+
+function LlmKeyForm({
+  provider,
+  status,
+}: {
+  provider: LlmProvider;
+  status: CredentialStatus;
+}) {
+  const [state, action, pending] = useActionState(
+    saveLlmKeyAction,
+    INITIAL_STATE,
+  );
+  const label = LLM_PROVIDER_LABELS[provider];
+  const inputId = `llm-key-${provider}`;
+
+  return (
+    <form
+      action={action}
+      className="space-y-3 rounded-lg border border-secondary-200 p-3 dark:border-secondary-800"
+    >
+      <input type="hidden" name="provider" value={provider} />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-sm font-medium text-secondary-950 dark:text-white">
+          {label}
+        </span>
+        <ProviderStatusBadge status={status} />
+      </div>
+      <div>
+        <Label htmlFor={inputId} className="mb-1 block">
+          Clé API {label}
+        </Label>
+        <Input
+          id={inputId}
+          name="apiKey"
+          type="password"
+          required
+          autoComplete="off"
+          placeholder={status.configured ? "Remplacer la clé..." : "••••••••"}
+        />
+      </div>
+      <ActionFeedback state={state} />
+      <Button type="submit" color="primary" size="sm" disabled={pending}>
+        {pending ? "Enregistrement..." : `Enregistrer ${label}`}
+      </Button>
+    </form>
+  );
+}
+
 export function SettingsPanel({
   franceTravail,
   adzuna,
   cronConfig,
   runs,
+  llmStatuses,
+  llmConfig,
 }: SettingsPanelProps) {
   const router = useRouter();
   const [ftState, ftAction, ftPending] = useActionState(
@@ -100,12 +168,28 @@ export function SettingsPanel({
     saveCronConfigAction,
     INITIAL_STATE,
   );
+  const [llmConfigState, llmConfigAction, llmConfigPending] = useActionState(
+    saveLlmConfigAction,
+    INITIAL_STATE,
+  );
   const [syncState, setSyncState] = useState<SettingsActionState | null>(null);
   const [isSyncing, startSync] = useTransition();
   const [cronEnabled, setCronEnabled] = useState(cronConfig.enabled);
   const [cronInterval, setCronInterval] = useState(
     String(cronConfig.intervalHours),
   );
+  const [activeLlmProvider, setActiveLlmProvider] = useState<LlmProvider>(
+    llmConfig?.activeProvider ?? "mistral",
+  );
+  const [llmModel, setLlmModel] = useState(
+    llmConfig?.model ??
+      getDefaultModelForProvider(llmConfig?.activeProvider ?? "mistral"),
+  );
+
+  function handleActiveProviderChange(next: LlmProvider) {
+    setActiveLlmProvider(next);
+    setLlmModel(getDefaultModelForProvider(next));
+  }
 
   const hasAnySource = franceTravail.configured || adzuna.configured;
 
@@ -220,6 +304,81 @@ export function SettingsPanel({
           </div>
         </Card>
       </div>
+
+      <Card>
+        <div className="space-y-5">
+          <div>
+            <h2 className="text-base font-semibold text-secondary-950 dark:text-white">
+              Fournisseur LLM
+            </h2>
+            <p className="text-sm text-secondary-600 dark:text-secondary-400">
+              Enregistrez vos clés API chiffrées et choisissez le modèle actif
+              pour la génération de candidatures.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {LLM_PROVIDERS.map((provider) => (
+              <LlmKeyForm
+                key={provider}
+                provider={provider}
+                status={llmStatuses?.[provider] ?? emptyLlmStatus(provider)}
+              />
+            ))}
+          </div>
+
+          <form
+            action={llmConfigAction}
+            className="space-y-4 border-t border-secondary-200 pt-4 dark:border-secondary-800"
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="llm-active-provider" className="mb-1 block">
+                  Fournisseur actif
+                </Label>
+                <Select
+                  id="llm-active-provider"
+                  name="activeProvider"
+                  value={activeLlmProvider}
+                  onChange={(e) =>
+                    handleActiveProviderChange(e.target.value as LlmProvider)
+                  }
+                >
+                  {LLM_PROVIDERS.map((provider) => (
+                    <option key={provider} value={provider}>
+                      {LLM_PROVIDER_LABELS[provider]}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="llm-model" className="mb-1 block">
+                  Modèle
+                </Label>
+                <Input
+                  id="llm-model"
+                  name="model"
+                  type="text"
+                  required
+                  value={llmModel}
+                  onChange={(e) => setLlmModel(e.target.value)}
+                  placeholder={getDefaultModelForProvider(activeLlmProvider)}
+                />
+                <p className="mt-1 text-xs text-secondary-600 dark:text-secondary-400">
+                  Par défaut : {getDefaultModelForProvider(activeLlmProvider)}
+                </p>
+              </div>
+            </div>
+
+            <ActionFeedback state={llmConfigState} />
+            <Button type="submit" color="primary" disabled={llmConfigPending}>
+              {llmConfigPending
+                ? "Enregistrement..."
+                : "Enregistrer la configuration LLM"}
+            </Button>
+          </form>
+        </div>
+      </Card>
 
       <Card>
         <div className="space-y-4">

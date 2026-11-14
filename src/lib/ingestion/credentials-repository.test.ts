@@ -95,7 +95,7 @@ describe("credentials-repository", () => {
     expect(result).toEqual({ appId: "adz_1", appKey: "adz_secret" });
   });
 
-  it("lists all 3 providers with masked hints and no secret fields", async () => {
+  it("lists all providers with masked hints and no secret fields", async () => {
     const updatedAt = new Date("2026-11-01T10:00:00Z");
     const from = vi.fn().mockResolvedValue([
       {
@@ -123,6 +123,30 @@ describe("credentials-repository", () => {
       },
       {
         provider: "ingestion_cron",
+        configured: false,
+        keyHint: "",
+        updatedAt: null,
+      },
+      {
+        provider: "llm_mistral",
+        configured: false,
+        keyHint: "",
+        updatedAt: null,
+      },
+      {
+        provider: "llm_openai",
+        configured: false,
+        keyHint: "",
+        updatedAt: null,
+      },
+      {
+        provider: "llm_anthropic",
+        configured: false,
+        keyHint: "",
+        updatedAt: null,
+      },
+      {
+        provider: "llm_config",
         configured: false,
         keyHint: "",
         updatedAt: null,
