@@ -15,7 +15,22 @@ branch: milestone/candidature
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-llm-schema-clients.md | api | M3-02, M4-02, M5-01 | done |
-| 02 | 02-candidatures-ui.md | web | M6-01, M5-02 | planned |
+| 02 | 02-candidatures-ui.md | web | M6-01, M5-02 | review |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

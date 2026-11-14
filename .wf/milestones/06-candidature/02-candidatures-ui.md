@@ -2,7 +2,7 @@
 id: M6-02
 phase: 2
 role: web
-status: planned
+status: review
 branch: feat/m6-02-candidatures-ui
 needs: [M6-01, M5-02]
 ---
@@ -68,18 +68,18 @@ export async function updateApplicationAction(input: {
 
 ## Todos
 
-- [ ] Add `src/components/candidatures/labels.ts` — centralized French labels & badge colors for `ApplicationStatus`, `ApplicationTone`, and `LlmProvider`
-- [ ] Test: `src/app/parametres/actions.test.ts` — extend specs for `saveLlmKeyAction` and `saveLlmConfigAction` (validation, encrypted storage, no key echo) (fails until actions implemented)
-- [ ] Update `src/app/parametres/actions.ts` and `src/app/parametres/page.tsx` — add `saveLlmKeyAction`, `saveLlmConfigAction`, and pass LLM statuses/config to `SettingsPanel`
-- [ ] Update `src/components/settings/settings-panel.tsx` — add « Fournisseur LLM » section (API keys with `keyHint`, active provider + model selector) using `@/components/ui`
-- [ ] Test: `src/app/candidatures/actions.test.ts` — spec `generateDraftAction` (missing config error, LLM call + DB save) and `updateApplicationAction` (Zod validation + status/draft/notes update) (fails until `actions.ts` implemented)
-- [ ] Add `src/app/candidatures/actions.ts` — implement `generateDraftAction` and `updateApplicationAction` with `revalidatePath`
-- [ ] Test: `src/components/candidatures/offer-application-panel.test.tsx` — spec tone/instruction form, privacy notice, inline editor, copy feedback, and regenerate confirmation when edited (fails until component implemented)
-- [ ] Add `src/components/candidatures/offer-application-panel.tsx` and integrate into `src/app/offres/[id]/page.tsx` — DS-only generation & inline editing panel
-- [ ] Test: `src/components/candidatures/candidature-stats-charts.test.tsx` — spec KPI cards and accessible SVG/Tailwind charts (`role="img"`, `aria-label`, status counts, token/cost totals) (fails until component implemented)
-- [ ] Add `src/components/candidatures/candidature-stats-charts.tsx` — implement 4 KPI cards and 2 DS-token SVG/Tailwind charts
-- [ ] Add `src/components/candidatures/application-card.tsx` and update `src/app/candidatures/page.tsx` — replace placeholder with stats charts, status/search filters, and editable application cards
-- [ ] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
+- [x] Add `src/components/candidatures/labels.ts` — centralized French labels & badge colors for `ApplicationStatus`, `ApplicationTone`, and `LlmProvider`
+- [x] Test: `src/app/parametres/actions.test.ts` — extend specs for `saveLlmKeyAction` and `saveLlmConfigAction` (validation, encrypted storage, no key echo) (fails until actions implemented)
+- [x] Update `src/app/parametres/actions.ts` and `src/app/parametres/page.tsx` — add `saveLlmKeyAction`, `saveLlmConfigAction`, and pass LLM statuses/config to `SettingsPanel`
+- [x] Update `src/components/settings/settings-panel.tsx` — add « Fournisseur LLM » section (API keys with `keyHint`, active provider + model selector) using `@/components/ui`
+- [x] Test: `src/app/candidatures/actions.test.ts` — spec `generateDraftAction` (missing config error, LLM call + DB save) and `updateApplicationAction` (Zod validation + status/draft/notes update) (fails until `actions.ts` implemented)
+- [x] Add `src/app/candidatures/actions.ts` — implement `generateDraftAction` and `updateApplicationAction` with `revalidatePath`
+- [x] Test: `src/components/candidatures/offer-application-panel.test.tsx` — spec tone/instruction form, privacy notice, inline editor, copy feedback, and regenerate confirmation when edited (fails until component implemented)
+- [x] Add `src/components/candidatures/offer-application-panel.tsx` and integrate into `src/app/offres/[id]/page.tsx` — DS-only generation & inline editing panel
+- [x] Test: `src/components/candidatures/candidature-stats-charts.test.tsx` — spec KPI cards and accessible SVG/Tailwind charts (`role="img"`, `aria-label`, status counts, token/cost totals) (fails until component implemented)
+- [x] Add `src/components/candidatures/candidature-stats-charts.tsx` — implement 4 KPI cards and 2 DS-token SVG/Tailwind charts
+- [x] Add `src/components/candidatures/application-card.tsx` and update `src/app/candidatures/page.tsx` — replace placeholder with stats charts, status/search filters, and editable application cards
+- [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
 
 ## UAT
 
