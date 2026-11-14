@@ -15,7 +15,10 @@ export function SkillsSection({ skills, onChange }: SkillsSectionProps) {
 
   const addSkill = () => {
     const label = draft.trim();
-    if (!label || skills.includes(label)) {
+    if (
+      !label ||
+      skills.some((s) => s.toLowerCase() === label.toLowerCase())
+    ) {
       setDraft("");
       return;
     }

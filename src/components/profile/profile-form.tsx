@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 import { saveProfile } from "@/app/profil/actions";
 import { Alert, Button } from "@/components/ui";
@@ -19,6 +20,7 @@ type ProfileFormProps = {
 };
 
 export function ProfileForm({ profile }: ProfileFormProps) {
+  const router = useRouter();
   const [form, setForm] = useState<ProfileUpdateInput>(() =>
     profileToFormState(profile),
   );
@@ -46,6 +48,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         variant: "success",
         text: "Profil enregistré.",
       });
+      router.refresh();
       return;
     }
 
