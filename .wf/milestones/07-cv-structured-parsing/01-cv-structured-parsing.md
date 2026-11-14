@@ -2,7 +2,7 @@
 id: M7-01
 phase: 1
 role: api
-status: doing
+status: review
 branch: milestone/07-cv-structured-parsing
 needs: [M3-02]
 ---
