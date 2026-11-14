@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import {
   generateDraftAction,
@@ -82,16 +82,19 @@ export function OfferApplicationPanel({
   const [copied, setCopied] = useState(false);
   const [isGenerating, startGenerate] = useTransition();
   const [isSaving, startSave] = useTransition();
+  const [prevApplication, setPrevApplication] = useState(initialApplication);
 
-  useEffect(() => {
-    if (!initialApplication) return;
-    setTone(initialApplication.tone);
-    setCustomInstructions(initialApplication.customInstructions);
-    setSubject(initialApplication.draftSubject);
-    setBody(initialApplication.draftBody);
-    setStatus(initialApplication.status);
-    setIsDirty(false);
-  }, [initialApplication]);
+  if (initialApplication !== prevApplication) {
+    setPrevApplication(initialApplication);
+    if (initialApplication) {
+      setTone(initialApplication.tone);
+      setCustomInstructions(initialApplication.customInstructions);
+      setSubject(initialApplication.draftSubject);
+      setBody(initialApplication.draftBody);
+      setStatus(initialApplication.status);
+      setIsDirty(false);
+    }
+  }
 
   function runGenerate() {
     setConfirmRegenerate(false);
