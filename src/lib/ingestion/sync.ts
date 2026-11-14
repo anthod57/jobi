@@ -16,6 +16,7 @@ import {
   type OfferSource,
 } from "./offer-repository";
 import { buildSearchQueryFromProfile } from "./search-query";
+import { recomputeScoresForOfferIds } from "@/lib/scoring/score-repository";
 
 export type IngestionRunSummary = {
   id: number;
@@ -109,19 +110,30 @@ async function syncSingleSource(
   try {
     const offers = (await fetchOffersForSource(source, maxDaysOld)) ?? [];
     fetchedCount = offers.length;
+    const touchedOfferIds = new Set<number>();
 
     for (const offer of offers) {
       try {
-        const { outcome } = await upsertOfferWithSource(offer);
-        if (outcome === "inserted") insertedCount += 1;
-        else if (outcome === "updated") updatedCount += 1;
-        else dedupedCount += 1;
+        const { offerId, outcome } = await upsertOfferWithSource(offer);
+        if (outcome === "inserted") {
+          insertedCount += 1;
+          touchedOfferIds.add(offerId);
+        } else if (outcome === "updated") {
+          updatedCount += 1;
+          touchedOfferIds.add(offerId);
+        } else {
+          dedupedCount += 1;
+        }
       } catch (err) {
         failedOffers += 1;
         if (!errorMessage) {
           errorMessage = err instanceof Error ? err.message : "Offer upsert failed";
         }
       }
+    }
+
+    if (touchedOfferIds.size > 0) {
+      await recomputeScoresForOfferIds([...touchedOfferIds]);
     }
 
     if (failedOffers > 0) {

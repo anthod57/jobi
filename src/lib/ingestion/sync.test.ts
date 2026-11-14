@@ -7,6 +7,7 @@ const {
   fetchFranceTravailMock,
   fetchAdzunaMock,
   upsertOfferMock,
+  recomputeScoresForOfferIdsMock,
 } = vi.hoisted(() => ({
   getDbMock: vi.fn(),
   getDecryptedCredentialMock: vi.fn(),
@@ -14,6 +15,7 @@ const {
   fetchFranceTravailMock: vi.fn(),
   fetchAdzunaMock: vi.fn(),
   upsertOfferMock: vi.fn(),
+  recomputeScoresForOfferIdsMock: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock("@/server/db/client", () => ({
@@ -38,6 +40,10 @@ vi.mock("./clients/adzuna", () => ({
 
 vi.mock("./offer-repository", () => ({
   upsertOfferWithSource: upsertOfferMock,
+}));
+
+vi.mock("@/lib/scoring/score-repository", () => ({
+  recomputeScoresForOfferIds: recomputeScoresForOfferIdsMock,
 }));
 
 import { listRecentIngestionRuns, runIngestionSync } from "./sync";

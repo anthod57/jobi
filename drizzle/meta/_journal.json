@@ -15,6 +15,13 @@
       "when": 1794609129173,
       "tag": "0001_lame_mercury",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794612382514,
+      "tag": "0002_exotic_songbird",
+      "breakpoints": true
     }
   ]
 }

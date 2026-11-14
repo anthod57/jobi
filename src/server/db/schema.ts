@@ -216,3 +216,26 @@ export const integrationCredentials = pgTable("integration_credentials", {
     .notNull()
     .defaultNow(),
 });
+
+export const offerScores = pgTable(
+  "offer_scores",
+  {
+    offerId: integer("offer_id")
+      .primaryKey()
+      .references(() => jobOffers.id, { onDelete: "cascade" }),
+    profileId: integer("profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    score: smallint("score"),
+    breakdown: jsonb("breakdown").notNull().default(sql`'{}'::jsonb`),
+    computedAt: timestamp("computed_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check(
+      "offer_scores_score_check",
+      sql`${table.score} IS NULL OR (${table.score} >= 0 AND ${table.score} <= 100)`,
+    ),
+  ],
+);
