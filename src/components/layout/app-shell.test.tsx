@@ -60,6 +60,19 @@ describe("AppShell", () => {
     fireEvent.click(menuButton);
     expect(menuButton).toHaveAttribute("aria-expanded", "true");
 
+    const dialog = screen.getByRole("dialog", { name: "Menu de navigation" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+
+    const main = screen.getByRole("main");
+    expect(main).toHaveAttribute("tabindex", "-1");
+
+    expect(
+      screen.getByRole("button", { name: /menu utilisateur/i }),
+    ).toBeInTheDocument();
+
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
   });
 });
