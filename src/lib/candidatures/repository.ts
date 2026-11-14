@@ -1,6 +1,7 @@
 import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
+import { escapeLikePattern } from "@/server/db/like";
 import { applications, jobOffers, llmUsageLogs } from "@/server/db/schema";
 
 import type {
@@ -171,7 +172,7 @@ export async function listApplications(
 
   const search = filters.q?.trim();
   if (search) {
-    const pattern = `%${search}%`;
+    const pattern = `%${escapeLikePattern(search)}%`;
     const searchCondition = or(
       ilike(jobOffers.title, pattern),
       ilike(jobOffers.company, pattern),
@@ -190,7 +191,7 @@ export async function listApplications(
   const filteredQuery =
     conditions.length > 0 ? baseQuery.where(and(...conditions)) : baseQuery;
 
-  return filteredQuery.orderBy(desc(applications.updatedAt));
+  return filteredQuery.orderBy(desc(applications.updatedAt)).limit(200);
 }
 
 export async function getCandidatureStats(): Promise<CandidatureStats> {

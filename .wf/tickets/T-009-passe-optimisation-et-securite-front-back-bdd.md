@@ -1,7 +1,7 @@
 ---
 id: T-009
 type: bug
-status: open
+status: doing
 severity: high
 created: 2026-11-14
 ---
@@ -22,5 +22,5 @@ created: 2026-11-14
 - Périmètre : optimisation et sécurité front / back / BDD.
 
 ## Todos
-- [ ] fix: auditer et corriger la sécurité front, back et BDD
+- [x] fix: auditer et corriger la sécurité front, back et BDD
 - [ ] fix: auditer et optimiser les performances front, back et requêtes BDD

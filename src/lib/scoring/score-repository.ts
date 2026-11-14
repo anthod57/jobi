@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
+import { escapeLikePattern } from "@/server/db/like";
 import {
   jobOffers,
   jobOfferSources,
@@ -155,7 +156,7 @@ function buildOfferFilterConditions(filters: OfferFilters): SQL | undefined {
   const conditions: SQL[] = [eq(jobOffers.isActive, true)];
 
   if (filters.q) {
-    const pattern = `%${filters.q}%`;
+    const pattern = `%${escapeLikePattern(filters.q)}%`;
     const qCond = or(
       ilike(jobOffers.title, pattern),
       ilike(jobOffers.company, pattern),

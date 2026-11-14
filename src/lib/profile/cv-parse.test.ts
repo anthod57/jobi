@@ -5,6 +5,7 @@ import {
   CV_MAX_BYTES,
   detectCvType,
   parseCvBuffer,
+  sanitizeUploadFilename,
 } from "./cv-parse";
 
 describe("detectCvType", () => {
@@ -34,5 +35,14 @@ describe("parseCvBuffer", () => {
   it("rejects unsupported content", async () => {
     const result = await parseCvBuffer(Buffer.from("plain text cv"));
     expect(result).toEqual({ ok: false, error: CV_ERRORS.unsupported });
+  });
+});
+
+describe("sanitizeUploadFilename", () => {
+  it("strips path segments, control chars, and caps length at 255", () => {
+    expect(sanitizeUploadFilename("../../etc/passwd\x00.pdf")).toBe("passwd.pdf");
+    expect(sanitizeUploadFilename("C:\\fakepath\\mon_cv.pdf")).toBe("mon_cv.pdf");
+    expect(sanitizeUploadFilename("   ")).toBe("cv");
+    expect(sanitizeUploadFilename(`${"a".repeat(300)}.pdf`).length).toBe(255);
   });
 });
