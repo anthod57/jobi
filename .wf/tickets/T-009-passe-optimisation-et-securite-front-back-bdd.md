@@ -1,7 +1,7 @@
 ---
 id: T-009
 type: bug
-status: doing
+status: done
 severity: high
 created: 2026-11-14
 ---
@@ -23,4 +23,4 @@ created: 2026-11-14
 
 ## Todos
 - [x] fix: auditer et corriger la sécurité front, back et BDD
-- [ ] fix: auditer et optimiser les performances front, back et requêtes BDD
+- [x] fix: auditer et optimiser les performances front, back et requêtes BDD

@@ -86,18 +86,21 @@ async function scoreAndUpsertOffers(
     };
   });
 
-  await db
-    .insert(offerScores)
-    .values(values)
-    .onConflictDoUpdate({
-      target: offerScores.offerId,
-      set: {
-        profileId: sql`excluded.profile_id`,
-        score: sql`excluded.score`,
-        breakdown: sql`excluded.breakdown`,
-        computedAt: sql`excluded.computed_at`,
-      },
-    });
+  const SCORE_UPSERT_CHUNK_SIZE = 500;
+  for (let i = 0; i < values.length; i += SCORE_UPSERT_CHUNK_SIZE) {
+    await db
+      .insert(offerScores)
+      .values(values.slice(i, i + SCORE_UPSERT_CHUNK_SIZE))
+      .onConflictDoUpdate({
+        target: offerScores.offerId,
+        set: {
+          profileId: sql`excluded.profile_id`,
+          score: sql`excluded.score`,
+          breakdown: sql`excluded.breakdown`,
+          computedAt: sql`excluded.computed_at`,
+        },
+      });
+  }
 
   return values.length;
 }
@@ -218,14 +221,6 @@ export async function listScoredOffers(
   const db = getDb();
   const whereClause = buildOfferFilterConditions(filters);
 
-  const [countRow] = await db
-    .select({ total: sql<number>`count(*)::int` })
-    .from(jobOffers)
-    .leftJoin(offerScores, eq(offerScores.offerId, jobOffers.id))
-    .where(whereClause);
-
-  const total = countRow?.total ?? 0;
-
   const orderBy =
     filters.sort === "date"
       ? [sql`${jobOffers.publishedAt} DESC NULLS LAST`, desc(jobOffers.id)]
@@ -235,29 +230,38 @@ export async function listScoredOffers(
           desc(jobOffers.id),
         ];
 
-  const rows = await db
-    .select({
-      id: jobOffers.id,
-      title: jobOffers.title,
-      company: jobOffers.company,
-      locationLabel: jobOffers.locationLabel,
-      department: jobOffers.department,
-      contractType: jobOffers.contractType,
-      remoteMode: jobOffers.remoteMode,
-      salaryMin: jobOffers.salaryMin,
-      salaryMax: jobOffers.salaryMax,
-      salaryText: jobOffers.salaryText,
-      publishedAt: jobOffers.publishedAt,
-      lastSeenAt: jobOffers.lastSeenAt,
-      score: offerScores.score,
-      breakdown: offerScores.breakdown,
-    })
-    .from(jobOffers)
-    .leftJoin(offerScores, eq(offerScores.offerId, jobOffers.id))
-    .where(whereClause)
-    .orderBy(...orderBy)
-    .limit(filters.pageSize)
-    .offset((filters.page - 1) * filters.pageSize);
+  const [[countRow], rows] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(jobOffers)
+      .leftJoin(offerScores, eq(offerScores.offerId, jobOffers.id))
+      .where(whereClause),
+    db
+      .select({
+        id: jobOffers.id,
+        title: jobOffers.title,
+        company: jobOffers.company,
+        locationLabel: jobOffers.locationLabel,
+        department: jobOffers.department,
+        contractType: jobOffers.contractType,
+        remoteMode: jobOffers.remoteMode,
+        salaryMin: jobOffers.salaryMin,
+        salaryMax: jobOffers.salaryMax,
+        salaryText: jobOffers.salaryText,
+        publishedAt: jobOffers.publishedAt,
+        lastSeenAt: jobOffers.lastSeenAt,
+        score: offerScores.score,
+        breakdown: offerScores.breakdown,
+      })
+      .from(jobOffers)
+      .leftJoin(offerScores, eq(offerScores.offerId, jobOffers.id))
+      .where(whereClause)
+      .orderBy(...orderBy)
+      .limit(filters.pageSize)
+      .offset((filters.page - 1) * filters.pageSize),
+  ]);
+
+  const total = countRow?.total ?? 0;
 
   const sourcesMap = await loadSourcesByOfferIds(rows.map((r) => r.id));
 

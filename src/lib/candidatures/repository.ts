@@ -62,21 +62,11 @@ export async function saveGeneratedApplication(
   const db = getDb();
   const now = new Date();
 
-  const [saved] = await db
-    .insert(applications)
-    .values({
-      offerId: input.offerId,
-      tone: input.tone,
-      customInstructions: input.customInstructions,
-      draftSubject: input.result.subject,
-      draftBody: input.result.body,
-      provider: input.provider,
-      model: input.model,
-      updatedAt: now,
-    })
-    .onConflictDoUpdate({
-      target: applications.offerId,
-      set: {
+  return db.transaction(async (tx) => {
+    const [saved] = await tx
+      .insert(applications)
+      .values({
+        offerId: input.offerId,
         tone: input.tone,
         customInstructions: input.customInstructions,
         draftSubject: input.result.subject,
@@ -84,21 +74,33 @@ export async function saveGeneratedApplication(
         provider: input.provider,
         model: input.model,
         updatedAt: now,
-      },
-    })
-    .returning({ id: applications.id });
+      })
+      .onConflictDoUpdate({
+        target: applications.offerId,
+        set: {
+          tone: input.tone,
+          customInstructions: input.customInstructions,
+          draftSubject: input.result.subject,
+          draftBody: input.result.body,
+          provider: input.provider,
+          model: input.model,
+          updatedAt: now,
+        },
+      })
+      .returning({ id: applications.id });
 
-  await db.insert(llmUsageLogs).values({
-    applicationId: saved.id,
-    provider: input.provider,
-    model: input.model,
-    promptTokens: input.result.promptTokens,
-    completionTokens: input.result.completionTokens,
-    totalTokens: input.result.totalTokens,
-    estimatedCostUsd: input.result.estimatedCostUsd.toFixed(6),
+    await tx.insert(llmUsageLogs).values({
+      applicationId: saved.id,
+      provider: input.provider,
+      model: input.model,
+      promptTokens: input.result.promptTokens,
+      completionTokens: input.result.completionTokens,
+      totalTokens: input.result.totalTokens,
+      estimatedCostUsd: input.result.estimatedCostUsd.toFixed(6),
+    });
+
+    return saved;
   });
-
-  return saved;
 }
 
 export async function updateApplication(
@@ -197,13 +199,26 @@ export async function listApplications(
 export async function getCandidatureStats(): Promise<CandidatureStats> {
   const db = getDb();
 
-  const statusRows = await db
-    .select({
-      status: applications.status,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(applications)
-    .groupBy(applications.status);
+  const [statusRows, usageRows] = await Promise.all([
+    db
+      .select({
+        status: applications.status,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(applications)
+      .groupBy(applications.status),
+    db
+      .select({
+        provider: llmUsageLogs.provider,
+        calls: sql<number>`count(*)::int`,
+        promptTokens: sql<number>`coalesce(sum(${llmUsageLogs.promptTokens}), 0)::int`,
+        completionTokens: sql<number>`coalesce(sum(${llmUsageLogs.completionTokens}), 0)::int`,
+        totalTokens: sql<number>`coalesce(sum(${llmUsageLogs.totalTokens}), 0)::int`,
+        costUsd: sql<string>`coalesce(sum(${llmUsageLogs.estimatedCostUsd}::numeric), 0)::text`,
+      })
+      .from(llmUsageLogs)
+      .groupBy(llmUsageLogs.provider),
+  ]);
 
   const byStatus: CandidatureStats["byStatus"] = {
     draft: 0,
@@ -218,18 +233,6 @@ export async function getCandidatureStats(): Promise<CandidatureStats> {
     byStatus[row.status] = count;
     totalApplications += count;
   }
-
-  const usageRows = await db
-    .select({
-      provider: llmUsageLogs.provider,
-      calls: sql<number>`count(*)::int`,
-      promptTokens: sql<number>`coalesce(sum(${llmUsageLogs.promptTokens}), 0)::int`,
-      completionTokens: sql<number>`coalesce(sum(${llmUsageLogs.completionTokens}), 0)::int`,
-      totalTokens: sql<number>`coalesce(sum(${llmUsageLogs.totalTokens}), 0)::int`,
-      costUsd: sql<string>`coalesce(sum(${llmUsageLogs.estimatedCostUsd}::numeric), 0)::text`,
-    })
-    .from(llmUsageLogs)
-    .groupBy(llmUsageLogs.provider);
 
   let totalPromptTokens = 0;
   let totalCompletionTokens = 0;

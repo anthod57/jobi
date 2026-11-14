@@ -67,32 +67,32 @@ function mapCvRow(
 export async function getProfile(): Promise<ProfileDto> {
   const db = getDb();
 
-  const [profile] = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.id, PROFILE_ID))
-    .limit(1);
+  const [[profile], skills, experiences, [cvRow]] = await Promise.all([
+    db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, PROFILE_ID))
+      .limit(1),
+    db
+      .select()
+      .from(profileSkills)
+      .where(eq(profileSkills.profileId, PROFILE_ID))
+      .orderBy(asc(profileSkills.sortOrder), asc(profileSkills.id)),
+    db
+      .select()
+      .from(profileExperiences)
+      .where(eq(profileExperiences.profileId, PROFILE_ID))
+      .orderBy(asc(profileExperiences.sortOrder), asc(profileExperiences.id)),
+    db
+      .select()
+      .from(profileCv)
+      .where(eq(profileCv.profileId, PROFILE_ID))
+      .limit(1),
+  ]);
+
   if (!profile) {
     throw new Error("Profil introuvable.");
   }
-
-  const skills = await db
-    .select()
-    .from(profileSkills)
-    .where(eq(profileSkills.profileId, PROFILE_ID))
-    .orderBy(asc(profileSkills.sortOrder), asc(profileSkills.id));
-
-  const experiences = await db
-    .select()
-    .from(profileExperiences)
-    .where(eq(profileExperiences.profileId, PROFILE_ID))
-    .orderBy(asc(profileExperiences.sortOrder), asc(profileExperiences.id));
-
-  const [cvRow] = await db
-    .select()
-    .from(profileCv)
-    .where(eq(profileCv.profileId, PROFILE_ID))
-    .limit(1);
 
   return {
     fullName: profile.fullName,
