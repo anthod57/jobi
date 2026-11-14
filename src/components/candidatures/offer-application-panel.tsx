@@ -216,7 +216,7 @@ export function OfferApplicationPanel({
           {initialApplication ? (
             <Link
               href="/candidatures"
-              className="text-sm font-medium text-primary-700 hover:underline dark:text-primary-400"
+              className="rounded-sm text-sm font-medium text-primary-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 dark:text-primary-400"
             >
               Voir mes candidatures →
             </Link>
@@ -231,7 +231,10 @@ export function OfferApplicationPanel({
         ) : (
           <Alert variant="warning">
             Aucune clé API LLM configurée pour le fournisseur actif.{" "}
-            <Link href="/parametres" className="font-semibold underline">
+            <Link
+              href="/parametres"
+              className="rounded-sm font-semibold underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
+            >
               Configurer dans Paramètres
             </Link>
             .
@@ -240,7 +243,7 @@ export function OfferApplicationPanel({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="application-tone" className="mb-1 block">
+            <Label htmlFor="application-tone" className="mb-1.5 block">
               Ton
             </Label>
             <Select
@@ -256,7 +259,7 @@ export function OfferApplicationPanel({
             </Select>
           </div>
           <div>
-            <Label htmlFor="application-instructions" className="mb-1 block">
+            <Label htmlFor="application-instructions" className="mb-1.5 block">
               Consigne particulière (optionnel)
             </Label>
             <Input
@@ -328,7 +331,7 @@ export function OfferApplicationPanel({
         {initialApplication ? (
           <div className="space-y-4 border-t border-secondary-200 pt-4 dark:border-secondary-800">
             <div>
-              <Label htmlFor="draft-subject" className="mb-1 block">
+              <Label htmlFor="draft-subject" className="mb-1.5 block">
                 Objet
               </Label>
               <Input
@@ -343,7 +346,7 @@ export function OfferApplicationPanel({
             </div>
 
             <div>
-              <Label htmlFor="draft-body" className="mb-1 block">
+              <Label htmlFor="draft-body" className="mb-1.5 block">
                 Message
               </Label>
               <textarea
@@ -360,7 +363,7 @@ export function OfferApplicationPanel({
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="application-status" className="mb-1 block">
+                <Label htmlFor="application-status" className="mb-1.5 block">
                   Statut
                 </Label>
                 <Select

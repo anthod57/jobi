@@ -34,8 +34,12 @@ export function SkillsSection({ skills, onChange }: SkillsSectionProps) {
     <Card title="Compétences" className="mt-section">
       <div className="flex flex-col gap-stack">
         <div>
-          <Label htmlFor={inputId} value="Ajouter une compétence" />
-          <div className="mt-2 flex flex-wrap gap-2">
+          <Label
+            htmlFor={inputId}
+            value="Ajouter une compétence"
+            className="mb-1.5 block"
+          />
+          <div className="flex flex-wrap gap-2">
             <Input
               id={inputId}
               className="min-w-[12rem] flex-1"
@@ -71,7 +75,9 @@ export function SkillsSection({ skills, onChange }: SkillsSectionProps) {
             </li>
           ))}
           {skills.length === 0 ? (
-            <li className="text-sm text-secondary-500">Aucune compétence.</li>
+            <li className="text-sm text-secondary-600 dark:text-secondary-400">
+              Aucune compétence.
+            </li>
           ) : null}
         </ul>
       </div>

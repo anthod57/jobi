@@ -16,7 +16,7 @@ export function Card({
   return (
     <FlowbiteCard className={className} {...props}>
       {title ? (
-        <h2 className="mb-2 text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+        <h2 className="mb-2 text-xl font-semibold tracking-tight text-secondary-950 dark:text-white">
           {title}
         </h2>
       ) : null}

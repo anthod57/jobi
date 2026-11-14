@@ -20,45 +20,59 @@ export function IdentitySection({ value, onChange }: IdentitySectionProps) {
     <Card title="Identité & contact" className="mt-section">
       <div className="flex flex-col gap-stack">
         <div>
-          <Label htmlFor="profile-fullName" value="Nom complet" />
+          <Label
+            htmlFor="profile-fullName"
+            value="Nom complet"
+            className="mb-1.5 block"
+          />
           <Input
             id="profile-fullName"
-            className="mt-2"
             value={value.fullName}
             onChange={(e) => onChange({ fullName: e.target.value })}
             autoComplete="name"
           />
         </div>
         <div>
-          <Label htmlFor="profile-headline" value="Titre professionnel" />
+          <Label
+            htmlFor="profile-headline"
+            value="Titre professionnel"
+            className="mb-1.5 block"
+          />
           <Input
             id="profile-headline"
-            className="mt-2"
             value={value.headline}
             onChange={(e) => onChange({ headline: e.target.value })}
           />
         </div>
-        <div>
-          <Label htmlFor="profile-email" value="E-mail" />
-          <Input
-            id="profile-email"
-            type="email"
-            className="mt-2"
-            value={value.email}
-            onChange={(e) => onChange({ email: e.target.value })}
-            autoComplete="email"
-          />
-        </div>
-        <div>
-          <Label htmlFor="profile-phone" value="Téléphone" />
-          <Input
-            id="profile-phone"
-            type="tel"
-            className="mt-2"
-            value={value.phone}
-            onChange={(e) => onChange({ phone: e.target.value })}
-            autoComplete="tel"
-          />
+        <div className="grid gap-stack sm:grid-cols-2">
+          <div>
+            <Label
+              htmlFor="profile-email"
+              value="E-mail"
+              className="mb-1.5 block"
+            />
+            <Input
+              id="profile-email"
+              type="email"
+              value={value.email}
+              onChange={(e) => onChange({ email: e.target.value })}
+              autoComplete="email"
+            />
+          </div>
+          <div>
+            <Label
+              htmlFor="profile-phone"
+              value="Téléphone"
+              className="mb-1.5 block"
+            />
+            <Input
+              id="profile-phone"
+              type="tel"
+              value={value.phone}
+              onChange={(e) => onChange({ phone: e.target.value })}
+              autoComplete="tel"
+            />
+          </div>
         </div>
       </div>
     </Card>

@@ -46,7 +46,7 @@ export function CandidatureStatsCharts({ stats }: CandidatureStatsChartsProps) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-section">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <p className="text-xs font-medium uppercase tracking-wide text-secondary-500 dark:text-secondary-400">
@@ -196,12 +196,12 @@ export function CandidatureStatsCharts({ stats }: CandidatureStatsChartsProps) {
                 <svg
                   role="img"
                   aria-label="Consommation tokens et coût LLM par fournisseur"
-                  viewBox={`0 0 400 ${Math.max(40, stats.usageByProvider.length * 36)}`}
+                  viewBox={`0 0 440 ${Math.max(40, stats.usageByProvider.length * 36)}`}
                   className="w-full"
                 >
                   {stats.usageByProvider.map((item, idx) => {
                     const barWidth = Math.round(
-                      (item.totalTokens / maxProviderTokens) * 190,
+                      (item.totalTokens / maxProviderTokens) * 160,
                     );
                     const y = idx * 34 + 6;
                     return (
@@ -214,16 +214,16 @@ export function CandidatureStatsCharts({ stats }: CandidatureStatsChartsProps) {
                           {LLM_PROVIDER_LABELS[item.provider]}
                         </text>
                         <rect
-                          x="90"
+                          x="95"
                           y="3"
-                          width="190"
+                          width="160"
                           height="16"
                           rx="4"
                           className="fill-secondary-100 dark:fill-secondary-800"
                         />
                         {barWidth > 0 ? (
                           <rect
-                            x="90"
+                            x="95"
                             y="3"
                             width={barWidth}
                             height="16"
@@ -232,7 +232,7 @@ export function CandidatureStatsCharts({ stats }: CandidatureStatsChartsProps) {
                           />
                         ) : null}
                         <text
-                          x="290"
+                          x="265"
                           y="15"
                           className="fill-secondary-900 text-xs font-semibold dark:fill-white"
                         >

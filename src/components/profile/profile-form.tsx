@@ -98,7 +98,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
       <CvAtsSection cv={profile.cv} />
 
-      <div className="sticky bottom-0 mt-section border-t border-secondary-200 bg-white/95 py-4 backdrop-blur dark:border-secondary-700 dark:bg-secondary-900/95">
+      <div className="sticky bottom-0 mt-section rounded-t-lg border-t border-secondary-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 dark:border-secondary-700 dark:bg-secondary-900/95">
         <Button
           type="submit"
           color="primary"

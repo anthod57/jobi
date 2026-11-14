@@ -127,7 +127,7 @@ function LlmKeyForm({
         <ProviderStatusBadge status={status} />
       </div>
       <div>
-        <Label htmlFor={inputId} className="mb-1 block">
+        <Label htmlFor={inputId} className="mb-1.5 block">
           Clé API {label}
         </Label>
         <Input
@@ -202,7 +202,7 @@ export function SettingsPanel({
   }
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="max-w-4xl space-y-section">
       <div className="flex flex-col gap-1 border-b border-secondary-200 pb-4 dark:border-secondary-800">
         <h1 className="text-2xl font-semibold tracking-tight text-secondary-950 dark:text-white">
           Paramètres
@@ -226,7 +226,7 @@ export function SettingsPanel({
             <form action={ftAction} className="space-y-3">
               <input type="hidden" name="provider" value="france_travail" />
               <div>
-                <Label htmlFor="ft-client-id" className="mb-1 block">
+                <Label htmlFor="ft-client-id" className="mb-1.5 block">
                   Client ID
                 </Label>
                 <Input
@@ -239,7 +239,7 @@ export function SettingsPanel({
                 />
               </div>
               <div>
-                <Label htmlFor="ft-client-secret" className="mb-1 block">
+                <Label htmlFor="ft-client-secret" className="mb-1.5 block">
                   Client Secret
                 </Label>
                 <Input
@@ -271,7 +271,7 @@ export function SettingsPanel({
             <form action={adzunaAction} className="space-y-3">
               <input type="hidden" name="provider" value="adzuna" />
               <div>
-                <Label htmlFor="adzuna-app-id" className="mb-1 block">
+                <Label htmlFor="adzuna-app-id" className="mb-1.5 block">
                   App ID
                 </Label>
                 <Input
@@ -284,7 +284,7 @@ export function SettingsPanel({
                 />
               </div>
               <div>
-                <Label htmlFor="adzuna-app-key" className="mb-1 block">
+                <Label htmlFor="adzuna-app-key" className="mb-1.5 block">
                   App Key
                 </Label>
                 <Input
@@ -333,7 +333,7 @@ export function SettingsPanel({
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="llm-active-provider" className="mb-1 block">
+                <Label htmlFor="llm-active-provider" className="mb-1.5 block">
                   Fournisseur actif
                 </Label>
                 <Select
@@ -352,7 +352,7 @@ export function SettingsPanel({
                 </Select>
               </div>
               <div>
-                <Label htmlFor="llm-model" className="mb-1 block">
+                <Label htmlFor="llm-model" className="mb-1.5 block">
                   Modèle
                 </Label>
                 <Input
@@ -405,7 +405,7 @@ export function SettingsPanel({
             </div>
 
             <div className="max-w-xs">
-              <Label htmlFor="cron-interval" className="mb-1 block">
+              <Label htmlFor="cron-interval" className="mb-1.5 block">
                 Intervalle
               </Label>
               <Select
@@ -459,7 +459,10 @@ export function SettingsPanel({
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-secondary-700 dark:text-secondary-300">
-                <thead className="border-b border-secondary-200 text-xs uppercase text-secondary-500 dark:border-secondary-800 dark:text-secondary-400">
+                <caption className="sr-only">
+                  Historique des imports récents
+                </caption>
+                <thead className="border-b border-secondary-200 text-xs uppercase text-secondary-600 dark:border-secondary-800 dark:text-secondary-400">
                   <tr>
                     <th scope="col" className="py-2 pr-4">
                       Source

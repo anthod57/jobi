@@ -1,7 +1,7 @@
 ---
 id: T-008
 type: bug
-status: open
+status: done
 severity: medium
 created: 2026-11-14
 ---
@@ -22,5 +22,5 @@ created: 2026-11-14
 - Périmètre : espacements, tailles de champs, responsivité, RGAA/WCAG.
 
 ## Todos
-- [ ] fix: auditer et harmoniser espacements, tailles de champs et responsivité
-- [ ] fix: auditer et corriger la conformité RGAA/WCAG sur les vues et composants
+- [x] fix: auditer et harmoniser espacements, tailles de champs et responsivité
+- [x] fix: auditer et corriger la conformité RGAA/WCAG sur les vues et composants

@@ -153,7 +153,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/offres/${application.offerId}`}
-                className="text-base font-semibold text-secondary-950 hover:text-primary-700 hover:underline dark:text-white dark:hover:text-primary-400"
+                className="rounded-sm text-base font-semibold text-secondary-950 hover:text-primary-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 dark:text-white dark:hover:text-primary-400"
               >
                 {application.offerTitle}
               </Link>
@@ -171,7 +171,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               <Badge color="gray">
                 {APPLICATION_TONE_LABELS[application.tone]}
               </Badge>
-              <span className="text-xs text-secondary-500 dark:text-secondary-400">
+              <span className="text-xs text-secondary-600 dark:text-secondary-400">
                 {LLM_PROVIDER_LABELS[application.provider]} · {application.model}{" "}
                 · Màj {formatShortDate(application.updatedAt)}
                 {application.sentAt
@@ -181,8 +181,8 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="w-36">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <div className="w-full sm:w-36">
               <Label
                 htmlFor={`status-${application.id}`}
                 className="sr-only"
@@ -220,6 +220,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               type="button"
               color="light"
               size="sm"
+              aria-expanded={isEditing}
               onClick={() => setIsEditing((prev) => !prev)}
             >
               <PencilSquareIcon className="mr-1 h-4 w-4" aria-hidden="true" />
@@ -295,7 +296,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         ) : (
           <div className="space-y-3 border-t border-secondary-200 pt-3 dark:border-secondary-800">
             <div>
-              <Label htmlFor={`subject-${application.id}`} className="mb-1 block">
+              <Label htmlFor={`subject-${application.id}`} className="mb-1.5 block">
                 Objet
               </Label>
               <Input
@@ -306,7 +307,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               />
             </div>
             <div>
-              <Label htmlFor={`body-${application.id}`} className="mb-1 block">
+              <Label htmlFor={`body-${application.id}`} className="mb-1.5 block">
                 Message
               </Label>
               <textarea
@@ -318,7 +319,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               />
             </div>
             <div>
-              <Label htmlFor={`notes-${application.id}`} className="mb-1 block">
+              <Label htmlFor={`notes-${application.id}`} className="mb-1.5 block">
                 Notes personnelles
               </Label>
               <textarea

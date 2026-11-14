@@ -62,47 +62,64 @@ export function ExperiencesSection({
                   type="button"
                   size="xs"
                   color="gray"
+                  aria-label={`Retirer l'expérience ${index + 1}`}
                   onClick={() => removeRow(index)}
                 >
                   Retirer
                 </Button>
               </div>
               <div>
-                <Label htmlFor={`${prefix}-title`} value="Intitulé du poste" />
+                <Label
+                  htmlFor={`${prefix}-title`}
+                  value="Intitulé du poste"
+                  className="mb-1.5 block"
+                />
                 <Input
                   id={`${prefix}-title`}
-                  className="mt-2"
                   value={row.title}
                   onChange={(e) => updateRow(index, { title: e.target.value })}
                 />
               </div>
-              <div>
-                <Label htmlFor={`${prefix}-company`} value="Entreprise" />
-                <Input
-                  id={`${prefix}-company`}
-                  className="mt-2"
-                  value={row.company}
-                  onChange={(e) => updateRow(index, { company: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`${prefix}-location`} value="Lieu" />
-                <Input
-                  id={`${prefix}-location`}
-                  className="mt-2"
-                  value={row.location}
-                  onChange={(e) =>
-                    updateRow(index, { location: e.target.value })
-                  }
-                />
+              <div className="grid gap-stack sm:grid-cols-2">
+                <div>
+                  <Label
+                    htmlFor={`${prefix}-company`}
+                    value="Entreprise"
+                    className="mb-1.5 block"
+                  />
+                  <Input
+                    id={`${prefix}-company`}
+                    value={row.company}
+                    onChange={(e) =>
+                      updateRow(index, { company: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor={`${prefix}-location`}
+                    value="Lieu"
+                    className="mb-1.5 block"
+                  />
+                  <Input
+                    id={`${prefix}-location`}
+                    value={row.location}
+                    onChange={(e) =>
+                      updateRow(index, { location: e.target.value })
+                    }
+                  />
+                </div>
               </div>
               <div className="grid gap-stack sm:grid-cols-2">
                 <div>
-                  <Label htmlFor={`${prefix}-start`} value="Date de début" />
+                  <Label
+                    htmlFor={`${prefix}-start`}
+                    value="Date de début"
+                    className="mb-1.5 block"
+                  />
                   <Input
                     id={`${prefix}-start`}
                     type="date"
-                    className="mt-2"
                     value={row.startDate}
                     onChange={(e) =>
                       updateRow(index, { startDate: e.target.value })
@@ -110,11 +127,14 @@ export function ExperiencesSection({
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`${prefix}-end`} value="Date de fin" />
+                  <Label
+                    htmlFor={`${prefix}-end`}
+                    value="Date de fin"
+                    className="mb-1.5 block"
+                  />
                   <Input
                     id={`${prefix}-end`}
                     type="date"
-                    className="mt-2"
                     value={row.endDate ?? ""}
                     onChange={(e) =>
                       updateRow(index, {
@@ -125,10 +145,13 @@ export function ExperiencesSection({
                 </div>
               </div>
               <div>
-                <Label htmlFor={`${prefix}-desc`} value="Description" />
+                <Label
+                  htmlFor={`${prefix}-desc`}
+                  value="Description"
+                  className="mb-1.5 block"
+                />
                 <Input
                   id={`${prefix}-desc`}
-                  className="mt-2"
                   value={row.description}
                   onChange={(e) =>
                     updateRow(index, { description: e.target.value })
