@@ -76,13 +76,13 @@ function supportsTemperature(model: string): boolean {
   return !/^(o\d|gpt-5)/i.test(model.trim());
 }
 
-async function callOpenAiCompatible(
+async function postOpenAiCompatible(
   url: string,
   apiKey: string,
   model: string,
   prompt: ApplicationPrompt,
-  providerLabel: string,
-): Promise<RawLlmResponse> {
+  includeTemperature: boolean,
+): Promise<Response> {
   const payload: Record<string, unknown> = {
     model,
     messages: [
@@ -90,11 +90,11 @@ async function callOpenAiCompatible(
       { role: "user", content: prompt.user },
     ],
   };
-  if (supportsTemperature(model)) {
+  if (includeTemperature) {
     payload.temperature = 0.7;
   }
 
-  const response = await fetch(url, {
+  return fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -103,12 +103,43 @@ async function callOpenAiCompatible(
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
+}
+
+async function callOpenAiCompatible(
+  url: string,
+  apiKey: string,
+  model: string,
+  prompt: ApplicationPrompt,
+  providerLabel: string,
+): Promise<RawLlmResponse> {
+  const includeTemp = supportsTemperature(model);
+  let response = await postOpenAiCompatible(
+    url,
+    apiKey,
+    model,
+    prompt,
+    includeTemp,
+  );
 
   if (!response.ok) {
     const detail = await readApiErrorDetail(response);
-    throw new Error(
-      `${providerLabel} API error: HTTP ${response.status}${detail ? ` — ${detail}` : ""}`,
-    );
+    if (
+      includeTemp &&
+      response.status === 400 &&
+      /temperature/i.test(detail)
+    ) {
+      response = await postOpenAiCompatible(url, apiKey, model, prompt, false);
+      if (!response.ok) {
+        const retryDetail = await readApiErrorDetail(response);
+        throw new Error(
+          `${providerLabel} API error: HTTP ${response.status}${retryDetail ? ` — ${retryDetail}` : ""}`,
+        );
+      }
+    } else {
+      throw new Error(
+        `${providerLabel} API error: HTTP ${response.status}${detail ? ` — ${detail}` : ""}`,
+      );
+    }
   }
 
   const data = (await response.json()) as {

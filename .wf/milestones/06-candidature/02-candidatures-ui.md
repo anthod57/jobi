@@ -81,6 +81,7 @@ export async function updateApplicationAction(input: {
 - [x] Add `src/components/candidatures/application-card.tsx` and update `src/app/candidatures/page.tsx` — replace placeholder with stats charts, status/search filters, and editable application cards
 - [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
 - [x] fix: surface LLM API error details and omit unsupported temperature on OpenAI models
+- [x] fix: retry OpenAI-compatible calls without temperature when HTTP 400 rejects temperature
 
 ## UAT
 

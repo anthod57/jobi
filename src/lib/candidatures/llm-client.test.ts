@@ -226,4 +226,53 @@ describe("generateWithLlm", () => {
       generateWithLlm("openai", "sk-test", "bad-model", SAMPLE_PROMPT),
     ).rejects.toThrow(/HTTP 400 — The model `bad-model` does not exist/);
   });
+
+  it("retries without temperature when OpenAI returns HTTP 400 rejecting temperature", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              message:
+                "Unsupported value: 'temperature' does not support 0.7 with this model.",
+            },
+          }),
+          { status: 400 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    subject: "Candidature OK",
+                    body: "Corps après retry",
+                  }),
+                },
+              },
+            ],
+            usage: { prompt_tokens: 20, completion_tokens: 10, total_tokens: 30 },
+          }),
+          { status: 200 },
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await generateWithLlm(
+      "openai",
+      "sk-test",
+      "custom-reasoning-model",
+      SAMPLE_PROMPT,
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const retryBody = JSON.parse(
+      (fetchMock.mock.calls[1]?.[1] as RequestInit).body as string,
+    ) as Record<string, unknown>;
+    expect(retryBody.temperature).toBeUndefined();
+    expect(result.subject).toBe("Candidature OK");
+  });
 });
