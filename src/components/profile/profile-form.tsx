@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { saveProfile } from "@/app/profil/actions";
@@ -22,13 +22,15 @@ type ProfileFormProps = {
 
 export function ProfileForm({ profile, hasLlmKey = false }: ProfileFormProps) {
   const router = useRouter();
+  const [prevProfile, setPrevProfile] = useState(profile);
   const [form, setForm] = useState<ProfileUpdateInput>(() =>
     profileToFormState(profile),
   );
 
-  useEffect(() => {
+  if (prevProfile !== profile) {
+    setPrevProfile(profile);
     setForm(profileToFormState(profile));
-  }, [profile]);
+  }
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{
     variant: "success" | "failure";

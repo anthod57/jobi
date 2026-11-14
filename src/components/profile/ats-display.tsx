@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SparklesIcon } from "@heroicons/react/24/outline";
@@ -198,15 +198,14 @@ function StructuredPreview({ structured }: { structured: StructuredCv }) {
 
 export function AtsDisplay({ cv, hasLlmKey = false }: AtsDisplayProps) {
   const router = useRouter();
-  const [reanalyzedCv, setReanalyzedCv] = useState<ProfileCvDto | null>(null);
+  const [reanalyzed, setReanalyzed] = useState<{
+    forCv: ProfileCvDto | null;
+    cv: ProfileCvDto;
+  } | null>(null);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [reanalyzeError, setReanalyzeError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setReanalyzedCv(null);
-  }, [cv]);
-
-  const activeCv = reanalyzedCv ?? cv;
+  const activeCv = reanalyzed && reanalyzed.forCv === cv ? reanalyzed.cv : cv;
 
   if (!activeCv) {
     return (
@@ -222,7 +221,7 @@ export function AtsDisplay({ cv, hasLlmKey = false }: AtsDisplayProps) {
     try {
       const result = await reanalyzeCvWithAi();
       if (result.ok) {
-        setReanalyzedCv(result.cv);
+        setReanalyzed({ forCv: cv, cv: result.cv });
         router.refresh();
         return;
       }
