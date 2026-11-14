@@ -9,11 +9,12 @@ export const CV_ERRORS = {
 } as const;
 
 const PDF_MIME = "application/pdf";
+const PDF_ALT_MIMES = new Set([PDF_MIME, "application/x-pdf"]);
 const DOCX_MIME =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 function isPdfMagic(buffer: Buffer): boolean {
-  return buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+  return buffer.subarray(0, 32).toString("ascii").trimStart().startsWith("%PDF-");
 }
 
 function isDocxMagic(buffer: Buffer): boolean {
@@ -28,7 +29,7 @@ export function detectCvType(
 ): DetectedCvType | null {
   const mime = declaredMime?.toLowerCase() ?? "";
   if (isPdfMagic(buffer)) {
-    if (mime && mime !== PDF_MIME) return null;
+    if (mime && !PDF_ALT_MIMES.has(mime)) return null;
     return "pdf";
   }
   if (isDocxMagic(buffer)) {
@@ -77,7 +78,7 @@ export async function parseCvBuffer(
       const { PDFParse } = await import("pdf-parse");
       const parser = new PDFParse({ data: buffer });
       try {
-        const parsed = await parser.getText();
+        const parsed = await parser.getText({ pageJoiner: "" });
         const text = parsed.text?.trim() ?? "";
         if (!text) {
           return { ok: false, error: CV_ERRORS.extractFailed };
@@ -96,7 +97,8 @@ export async function parseCvBuffer(
       return { ok: false, error: CV_ERRORS.extractFailed };
     }
     return { ok: true, text, mimeType: DOCX_MIME };
-  } catch {
+  } catch (err) {
+    console.error("[cv-parse] failed to extract CV text:", err);
     return { ok: false, error: CV_ERRORS.extractFailed };
   }
 }

@@ -15,6 +15,7 @@ type CvAtsSectionProps = {
 
 export function CvAtsSection({ cv }: CvAtsSectionProps) {
   const router = useRouter();
+  const [uploadedCv, setUploadedCv] = useState<ProfileCvDto | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{
@@ -36,20 +37,28 @@ export function CvAtsSection({ cv }: CvAtsSectionProps) {
     const formData = new FormData();
     formData.set("file", selectedFile);
 
-    const result = await uploadCv(formData);
-    setUploading(false);
+    try {
+      const result = await uploadCv(formData);
+      if (result.ok) {
+        setUploadedCv(result.cv);
+        setUploadMessage({
+          variant: "success",
+          text: "CV importé et analysé.",
+        });
+        setSelectedFile(null);
+        router.refresh();
+        return;
+      }
 
-    if (result.ok) {
+      setUploadMessage({ variant: "failure", text: result.error });
+    } catch {
       setUploadMessage({
-        variant: "success",
-        text: "CV importé et analysé.",
+        variant: "failure",
+        text: "Impossible d'importer le CV.",
       });
-      setSelectedFile(null);
-      router.refresh();
-      return;
+    } finally {
+      setUploading(false);
     }
-
-    setUploadMessage({ variant: "failure", text: result.error });
   };
 
   const fileInputId = "profile-cv-file";
@@ -84,7 +93,7 @@ export function CvAtsSection({ cv }: CvAtsSectionProps) {
             <Alert variant={uploadMessage.variant}>{uploadMessage.text}</Alert>
           ) : null}
         </div>
-        <AtsDisplay cv={cv} />
+        <AtsDisplay cv={uploadedCv ?? cv} />
       </div>
     </Card>
   );
