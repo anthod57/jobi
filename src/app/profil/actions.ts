@@ -9,7 +9,7 @@ import {
   saveProfile as persistProfile,
   upsertCvAfterParse,
 } from "@/lib/profile/repository";
-import type { ProfileDto } from "@/lib/profile/repository";
+import type { ProfileCvDto, ProfileDto } from "@/lib/profile/repository";
 import { recomputeScoresForAllOffers } from "@/lib/scoring/score-repository";
 
 export type SaveProfileResult =
@@ -17,7 +17,7 @@ export type SaveProfileResult =
   | { ok: false; error: string };
 
 export type UploadCvResult =
-  | { ok: true }
+  | { ok: true; cv: ProfileCvDto }
   | { ok: false; error: string };
 
 export async function getProfile(): Promise<ProfileDto> {
@@ -63,7 +63,7 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
 
   try {
     const profile = await loadProfile();
-    await upsertCvAfterParse(
+    const cv = await upsertCvAfterParse(
       sanitizeUploadFilename(field.name),
       parsed.mimeType,
       parsed.text,
@@ -74,8 +74,9 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
     await recomputeScoresForAllOffers();
     revalidatePath("/profil");
     revalidatePath("/offres");
-    return { ok: true };
-  } catch {
+    return { ok: true, cv };
+  } catch (err) {
+    console.error("[uploadCv] failed to persist CV:", err);
     return { ok: false, error: "Impossible d'enregistrer le CV." };
   }
 }

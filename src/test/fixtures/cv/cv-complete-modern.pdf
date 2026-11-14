@@ -1,0 +1,52 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 1392 >>
+stream
+0.10 0.25 0.55 rg 0 742 595 100 re f
+BT /F2 20 Tf 1 1 1 rg 1 0 0 1 40 800 Tm (Alice Martin) Tj ET
+BT /F1 12 Tf 0.9 0.95 1 rg 1 0 0 1 40 778 Tm (Developpeuse Full-Stack TypeScript / Next.js) Tj ET
+BT /F1 10 Tf 0.9 0.95 1 rg 1 0 0 1 40 756 Tm (alice.martin@example.com | +33 6 12 34 56 78 | Paris, France) Tj ET
+0.10 0.25 0.55 rg 40 715 515 2 re f
+BT /F2 13 Tf 0.1 0.25 0.55 rg 1 0 0 1 40 695 Tm (EXPERIENCES PROFESSIONNELLES) Tj ET
+BT /F2 11 Tf 0.1 0.1 0.1 rg 1 0 0 1 40 675 Tm (Lead Developpeuse - Acme Tech \(2021 - 2025\)) Tj ET
+BT /F1 10 Tf 0.2 0.2 0.2 rg 1 0 0 1 40 658 Tm (- Conception d architectures React, Next.js et PostgreSQL \(+35% de performance\).) Tj ET
+BT /F1 10 Tf 0.2 0.2 0.2 rg 1 0 0 1 40 642 Tm (- Encadrement d une equipe de 4 ingenieurs et mise en place CI/CD Docker.) Tj ET
+BT /F2 11 Tf 0.1 0.1 0.1 rg 1 0 0 1 40 615 Tm (Developpeuse Web - Studio Beta \(2018 - 2021\)) Tj ET
+BT /F1 10 Tf 0.2 0.2 0.2 rg 1 0 0 1 40 598 Tm (- Refonte du tunnel de commande TypeScript reduisant les erreurs de 40%.) Tj ET
+BT /F2 13 Tf 0.1 0.25 0.55 rg 1 0 0 1 40 560 Tm (COMPETENCES) Tj ET
+BT /F1 10 Tf 0.2 0.2 0.2 rg 1 0 0 1 40 540 Tm (TypeScript, React, Next.js, Node.js, PostgreSQL, Docker, Vitest) Tj ET
+BT /F2 13 Tf 0.1 0.25 0.55 rg 1 0 0 1 40 505 Tm (FORMATION) Tj ET
+BT /F1 10 Tf 0.2 0.2 0.2 rg 1 0 0 1 40 485 Tm (Master Informatique - Universite Paris-Saclay \(2016 - 2018\)) Tj ET
+
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 5 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000218 00000 n 
+0000000320 00000 n 
+0000001764 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+1900
+%%EOF

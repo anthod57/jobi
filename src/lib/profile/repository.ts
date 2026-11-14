@@ -226,7 +226,7 @@ export async function upsertCvAfterParse(
   skillLabels: string[],
   profileEmail: string,
   profilePhone: string,
-): Promise<void> {
+): Promise<ProfileCvDto> {
   const db = getDb();
   const now = new Date();
   const ats = runAtsAnalysis(extractedText, {
@@ -267,4 +267,14 @@ export async function upsertCvAfterParse(
       });
     }
   });
+
+  return {
+    originalFilename,
+    mimeType,
+    extractedText,
+    uploadedAt: now,
+    atsScore: ats.score,
+    atsFindings: ats.findings,
+    atsAnalyzedAt: now,
+  };
 }

@@ -1,7 +1,7 @@
 ---
 id: T-010
 type: bug
-status: open
+status: done
 severity: high
 created: 2026-11-14
 ---
@@ -22,7 +22,7 @@ created: 2026-11-14
 - Prévoir la création de 2-3 CV PDF de fixture avec différentes structures, couleurs et contenus pour les tests automatisés.
 
 ## Todos
-- [ ] Créer 2-3 CV PDF de test (structures, couleurs et contenus variés) pour les tests automatiques
-- [ ] Diagnostiquer et corriger le parsing PDF du CV (`src/lib/profile/cv-parse.ts`, `src/app/profil/actions.ts`)
-- [ ] Diagnostiquer et corriger le calcul / affichage du score ATS (`src/lib/profile/ats/runAtsAnalysis.ts`, `src/components/profile/cv-ats-section.tsx`)
-- [ ] Ajouter / exécuter les tests automatisés avec les CV PDF créés
+- [x] Créer 2-3 CV PDF de test (structures, couleurs et contenus variés) pour les tests automatiques
+- [x] Diagnostiquer et corriger le parsing PDF du CV (`src/lib/profile/cv-parse.ts`, `src/app/profil/actions.ts`)
+- [x] Diagnostiquer et corriger le calcul / affichage du score ATS (`src/lib/profile/ats/runAtsAnalysis.ts`, `src/components/profile/cv-ats-section.tsx`)
+- [x] Ajouter / exécuter les tests automatisés avec les CV PDF créés
