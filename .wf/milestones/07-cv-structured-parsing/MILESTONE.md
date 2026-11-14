@@ -14,7 +14,7 @@ branch: milestone/07-cv-structured-parsing
 
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
-| 01 | 01-cv-structured-parsing.md | api | M3-02 | review |
+| 01 | 01-cv-structured-parsing.md | api | M3-02 | done |
 | 02 | 02-cv-ats-ui.md | web | M7-01 | discuss |
 
 ## Decisions (jalon)

@@ -2,7 +2,7 @@
 id: M7-01
 phase: 1
 role: api
-status: review
+status: done
 branch: milestone/07-cv-structured-parsing
 needs: [M3-02]
 ---
@@ -154,7 +154,7 @@ export async function applyStructuredCvToProfile(): Promise<SaveProfileResult>;
 
 ## UAT
 
-- [ ] (auto) `npm test -- src/lib/profile src/app/profil/actions.test.ts` passes with all layout-aware PDF, structured parsing, LLM fallback, ATS, repository, and action tests green
-- [ ] (auto) `npm run build` succeeds without TypeScript or Next.js bundling errors (including `pdfjs-dist` server externalization)
-- [ ] (auto) Drizzle migration applies cleanly and `profile_cv` persists `structured_sections`, `parse_mode`, `is_multi_column`, and `page_count`
-- [ ] (auto) Parsing `src/test/fixtures/cv/cv-two-column-backend.pdf` yields ordered text without column interleaving, `layout.isMultiColumn: true`, and valid `structuredSections`
+- [x] (auto) `npm test -- src/lib/profile src/app/profil/actions.test.ts` passes with all layout-aware PDF, structured parsing, LLM fallback, ATS, repository, and action tests green
+- [x] (auto) `npm run build` succeeds without TypeScript or Next.js bundling errors (including `pdfjs-dist` server externalization)
+- [x] (auto) Drizzle migration applies cleanly and `profile_cv` persists `structured_sections`, `parse_mode`, `is_multi_column`, and `page_count`
+- [x] (auto) Parsing `src/test/fixtures/cv/cv-two-column-backend.pdf` yields ordered text without column interleaving, `layout.isMultiColumn: true`, and valid `structuredSections`
