@@ -1,26 +1,28 @@
 ---
 id: M7
-title: Extraction structurée du CV (multi-colonnes & compétences)
+title: Extraction structurée du CV, profil auto-rempli & score ATS évolué
 status: active
 branch: milestone/07-cv-structured-parsing
 ---
-# M7 — Extraction structurée du CV
+# M7 — Extraction structurée du CV, profil auto-rempli & score ATS
 
-**Goal:** extraire fidèlement les informations de tout format de CV (1 ou 2 colonnes, flux PDF désordonné, DOCX) dans les bonnes sections (`contact`, `experiences`, `skills` incluant `Stack technique`, `softSkills`, `education`, `other`) sans fuite de titres/sous-titres ni d'expériences dans les compétences.
+**Goal:** extraire fidèlement tout format de CV (1 ou 2 colonnes, bandeau pleine largeur, flux PDF désordonné, DOCX) via `pdfjs-dist` + architecture hybride (100 % fonctionnelle sans clé LLM, enrichie automatiquement si une clé LLM utilisateur est configurée), persister la structure riche en base, alimenter un score ATS déterministe évolué et permettre de pré-remplir le profil depuis un CTA visible en haut de `/profil`.
 
-**Out of scope:** enrichissement LLM payant/externe, OCR d'images scannées sans couche texte, stockage binaire du fichier CV.
+**Out of scope:** OCR d'images scannées sans couche texte, stockage binaire du fichier CV, score ATS chiffré calculé par LLM (le score reste 100 % déterministe).
 
 ## Phases
 
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-cv-structured-parsing.md | api | M3-02 | discuss |
+| 02 | 02-cv-ats-ui.md | web | M7-01 | discuss |
 
 ## Decisions (jalon)
 
 | Sujet | Choix |
 |-------|--------|
-| Stratégie | 100 % déterministe (coordonnées PDF `(x, y)` + heuristiques), sans appel LLM |
-| Formats supportés | PDF 1 colonne, PDF 2 colonnes / flux désordonné (Canva, Figma, HTML-to-PDF), DOCX |
-| Taxonomie | `Stack technique` / `Technologies` fusionnés dans `skills` ; sous-titres (`Front-End`, `Back-End`, `Base de données`, `Autres`) filtrés |
-| Persistance | Aucun changement de schéma SQL (`profile_cv.extracted_text` conservé) |
+| Stratégie d'extraction | Hybride : layout PDF par coordonnées `(x, y)` (`pdfjs-dist`) + structuration LLM (JSON validé Zod) si clé configurée, sinon fallback 100 % déterministe (heuristiques améliorées) |
+| Persistance | Ajout de `structured_sections` (JSONB), `parse_mode` (`"llm" \| "deterministic"`), `is_multi_column` (boolean), `page_count` (smallint) sur `profile_cv` |
+| Schéma structuré | `StructuredCv` riche (`contact` objet, `experiences[]` typées, `education[]` typées, `skills[]`, `softSkills[]`, `other[]`) |
+| Score ATS | 100 % déterministe dans `src/lib/profile/ats/`, enrichi via `structured` et `layout` (`isMultiColumn`, `pageCount`) optionnels dans `AtsContext` |
+| Auto-remplissage profil | CTA en haut de `/profil` (sans scroll) pour importer/pré-remplir le profil depuis le CV parsé ; badge clair IA vs mode local sans clé |
