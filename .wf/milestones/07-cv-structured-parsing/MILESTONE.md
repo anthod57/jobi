@@ -1,7 +1,7 @@
 ---
 id: M7
 title: Extraction structurée du CV, profil auto-rempli & score ATS évolué
-status: active
+status: done
 branch: milestone/07-cv-structured-parsing
 ---
 # M7 — Extraction structurée du CV, profil auto-rempli & score ATS
@@ -15,7 +15,7 @@ branch: milestone/07-cv-structured-parsing
 | # | File | Role | Needs | Status |
 |---|------|------|-------|--------|
 | 01 | 01-cv-structured-parsing.md | api | M3-02 | done |
-| 02 | 02-cv-ats-ui.md | web | M7-01 | discuss |
+| 02 | 02-cv-ats-ui.md | web | M7-01 | done |
 
 ## Decisions (jalon)
 
