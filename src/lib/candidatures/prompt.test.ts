@@ -100,9 +100,9 @@ describe("buildApplicationPrompt", () => {
       "",
     );
 
-    const dMatches = prompt.user.match(/D/g)?.length ?? 0;
-    const cMatches = prompt.user.match(/C/g)?.length ?? 0;
-    expect(dMatches).toBeLessThanOrEqual(6000);
-    expect(cMatches).toBeLessThanOrEqual(6000);
+    expect(prompt.user).toContain("D".repeat(6000));
+    expect(prompt.user).not.toContain("D".repeat(6001));
+    expect(prompt.user).toContain("C".repeat(6000));
+    expect(prompt.user).not.toContain("C".repeat(6001));
   });
 });
