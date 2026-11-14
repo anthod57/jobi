@@ -80,11 +80,12 @@ export async function updateApplicationAction(input: {
 - [x] Add `src/components/candidatures/candidature-stats-charts.tsx` — implement 4 KPI cards and 2 DS-token SVG/Tailwind charts
 - [x] Add `src/components/candidatures/application-card.tsx` and update `src/app/candidatures/page.tsx` — replace placeholder with stats charts, status/search filters, and editable application cards
 - [x] Test: `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` pass
+- [x] fix: surface LLM API error details and omit unsupported temperature on OpenAI models
 
 ## UAT
 
-- [ ] (auto) `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` exit 0
-- [ ] (auto) GET `/candidatures` and GET `/parametres` return HTTP 200 with `<html lang="fr">` and expected headings
-- [ ] (human) Keyboard & contrast (shared-audit §4): Tab through `/parametres` LLM config, `/offres/[id]` application panel, and `/candidatures` filters/cards with visible focus; charts and badges remain readable in light/dark mode
-- [ ] (human) DS only (shared-design-system): `src/components/candidatures/*`, `src/app/candidatures/*`, and updated `settings-panel.tsx` import UI exclusively from `@/components/ui` (no raw `#hex`, no charting lib, no ad hoc styles)
+- [x] (auto) `npm run build`, `npm run lint`, `npx tsc --noEmit`, and `npm test` exit 0
+- [x] (auto) GET `/candidatures` and GET `/parametres` return HTTP 200 with `<html lang="fr">` and expected headings
+- [x] (human) Keyboard & contrast (shared-audit §4): Tab through `/parametres` LLM config, `/offres/[id]` application panel, and `/candidatures` filters/cards with visible focus; charts and badges remain readable in light/dark mode
+- [x] (human) DS only (shared-design-system): `src/components/candidatures/*`, `src/app/candidatures/*`, and updated `settings-panel.tsx` import UI exclusively from `@/components/ui` (no raw `#hex`, no charting lib, no ad hoc styles)
 - [ ] (human) End-to-end UX check: configure LLM key in `/parametres`, generate & edit draft on `/offres/[id]` (with privacy notice and 1-click copy), and verify `/candidatures` updates KPIs, charts, status, and token/cost stats

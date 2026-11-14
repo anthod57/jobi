@@ -52,6 +52,30 @@ function parseDraftJson(rawText: string): ParsedDraft {
   };
 }
 
+async function readApiErrorDetail(response: Response): Promise<string> {
+  try {
+    const raw = await response.text();
+    if (!raw.trim()) return "";
+    const parsed = JSON.parse(raw) as {
+      error?: { message?: unknown };
+      message?: unknown;
+    };
+    const msg =
+      typeof parsed?.error?.message === "string"
+        ? parsed.error.message
+        : typeof parsed?.message === "string"
+          ? parsed.message
+          : raw;
+    return msg.trim().slice(0, 200);
+  } catch {
+    return "";
+  }
+}
+
+function supportsTemperature(model: string): boolean {
+  return !/^(o\d|gpt-5)/i.test(model.trim());
+}
+
 async function callOpenAiCompatible(
   url: string,
   apiKey: string,
@@ -59,25 +83,32 @@ async function callOpenAiCompatible(
   prompt: ApplicationPrompt,
   providerLabel: string,
 ): Promise<RawLlmResponse> {
+  const payload: Record<string, unknown> = {
+    model,
+    messages: [
+      { role: "system", content: prompt.system },
+      { role: "user", content: prompt.user },
+    ],
+  };
+  if (supportsTemperature(model)) {
+    payload.temperature = 0.7;
+  }
+
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: prompt.system },
-        { role: "user", content: prompt.user },
-      ],
-      temperature: 0.7,
-    }),
+    body: JSON.stringify(payload),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (!response.ok) {
-    throw new Error(`${providerLabel} API error: HTTP ${response.status}`);
+    const detail = await readApiErrorDetail(response);
+    throw new Error(
+      `${providerLabel} API error: HTTP ${response.status}${detail ? ` — ${detail}` : ""}`,
+    );
   }
 
   const data = (await response.json()) as {
@@ -119,7 +150,10 @@ async function callAnthropic(
   });
 
   if (!response.ok) {
-    throw new Error(`Anthropic API error: HTTP ${response.status}`);
+    const detail = await readApiErrorDetail(response);
+    throw new Error(
+      `Anthropic API error: HTTP ${response.status}${detail ? ` — ${detail}` : ""}`,
+    );
   }
 
   const data = (await response.json()) as {

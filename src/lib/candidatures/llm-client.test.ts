@@ -184,4 +184,46 @@ describe("generateWithLlm", () => {
       expect((error as Error).message).not.toContain("sk-super-secret-value");
     }
   });
+
+  it("omits temperature for OpenAI reasoning/gpt-5 models and surfaces HTTP 400 error details", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    subject: "Candidature",
+                    body: "Corps",
+                  }),
+                },
+              },
+            ],
+            usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: { message: "The model `bad-model` does not exist" },
+          }),
+          { status: 400 },
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await generateWithLlm("openai", "sk-test", "gpt-5-mini", SAMPLE_PROMPT);
+    const bodySent = JSON.parse(
+      (fetchMock.mock.calls[0]?.[1] as RequestInit).body as string,
+    ) as Record<string, unknown>;
+    expect(bodySent.temperature).toBeUndefined();
+
+    await expect(
+      generateWithLlm("openai", "sk-test", "bad-model", SAMPLE_PROMPT),
+    ).rejects.toThrow(/HTTP 400 — The model `bad-model` does not exist/);
+  });
 });
