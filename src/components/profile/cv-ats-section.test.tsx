@@ -33,7 +33,16 @@ describe("CvAtsSection", () => {
       cv: {
         originalFilename: "cv-complete-modern.pdf",
         mimeType: "application/pdf",
-        extractedText: "Alice Martin",
+        extractedText: [
+          "Alice Martin",
+          "alice@example.com",
+          "COMPÉTENCES",
+          "TypeScript, React",
+          "SOFT-SKILLS",
+          "Communication",
+          "EXPÉRIENCES",
+          "Dev — Acme (2022 - 2025)",
+        ].join("\n"),
         uploadedAt: new Date("2026-11-14T12:00:00Z"),
         atsScore: 92,
         atsFindings: [],
@@ -55,6 +64,11 @@ describe("CvAtsSection", () => {
     });
     expect(screen.getByText(/Score ATS : 92/i)).toBeInTheDocument();
     expect(screen.getByText(/Fichier : cv-complete-modern\.pdf/i)).toBeInTheDocument();
+    expect(screen.getByText(/Aperçu du CV extrait/i)).toBeInTheDocument();
+    expect(screen.getByText("alice@example.com")).toBeInTheDocument();
+    expect(screen.getByText("TypeScript")).toBeInTheDocument();
+    expect(screen.getByText("Communication")).toBeInTheDocument();
+    expect(screen.getByText("Dev — Acme (2022 - 2025)")).toBeInTheDocument();
     expect(mockRefresh).toHaveBeenCalledTimes(1);
   });
 

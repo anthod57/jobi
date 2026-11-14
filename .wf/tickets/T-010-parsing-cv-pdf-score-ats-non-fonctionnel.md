@@ -26,3 +26,4 @@ created: 2026-11-14
 - [x] Diagnostiquer et corriger le parsing PDF du CV (`src/lib/profile/cv-parse.ts`, `src/app/profil/actions.ts`)
 - [x] Diagnostiquer et corriger le calcul / affichage du score ATS (`src/lib/profile/ats/runAtsAnalysis.ts`, `src/components/profile/cv-ats-section.tsx`)
 - [x] Ajouter / exécuter les tests automatisés avec les CV PDF créés
+- [x] Ajouter un aperçu structuré par sections (contact, compétences, soft-skills, expériences, formation, autres) des informations extraites du CV
