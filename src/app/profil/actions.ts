@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { profileUpdateInputSchema, type ProfileUpdateInput } from "@/lib/profile/schemas";
 import { parseCvBuffer, sanitizeUploadFilename, CV_MAX_BYTES } from "@/lib/profile/cv-parse";
-import { parseCvStructured } from "@/lib/profile/cv-sections";
+import { parseCvStructured } from "@/lib/profile/cv-llm-parser";
 import {
   getProfile as loadProfile,
   saveProfile as persistProfile,

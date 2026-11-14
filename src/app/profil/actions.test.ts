@@ -30,14 +30,9 @@ vi.mock("@/lib/profile/cv-parse", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/profile/cv-sections", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@/lib/profile/cv-sections")>();
-  return {
-    ...actual,
-    parseCvStructured: mockParseCvStructured,
-  };
-});
+vi.mock("@/lib/profile/cv-llm-parser", () => ({
+  parseCvStructured: mockParseCvStructured,
+}));
 
 vi.mock("@/lib/profile/repository", () => ({
   getProfile: mockLoadProfile,

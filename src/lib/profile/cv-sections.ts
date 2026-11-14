@@ -4,7 +4,6 @@ import {
   linesOf,
   normalizeForMatch,
 } from "@/lib/profile/ats/text-helpers";
-import { parseCvWithLlm } from "./cv-llm-parser";
 import type { CvLayoutMeta } from "./cv-parse";
 
 export type { CvLayoutMeta };
@@ -182,7 +181,7 @@ function normalizeCvUrl(rawUrl: string): string {
     .replace(/\/+$/, "");
 }
 
-function normalizeStructuredCv(cv: StructuredCv): StructuredCv {
+export function normalizeStructuredCv(cv: StructuredCv): StructuredCv {
   return {
     contact: {
       ...cv.contact,
@@ -356,29 +355,4 @@ export function extractCvStructuredDeterministic(text: string): StructuredCv {
     softSkills: sections.softSkills,
     other: sections.other,
   });
-}
-
-/** Hybrid structured CV parser: uses user LLM when available, silently falls back to deterministic. */
-export async function parseCvStructured(
-  text: string,
-): Promise<StructuredParseOutput> {
-  try {
-    const llmCandidate = await parseCvWithLlm(text);
-    if (llmCandidate) {
-      const validated = structuredCvSchema.safeParse(llmCandidate);
-      if (validated.success) {
-        return {
-          structured: normalizeStructuredCv(validated.data),
-          mode: "llm",
-        };
-      }
-    }
-  } catch {
-    // Silent fallback to deterministic parser on any LLM error or timeout.
-  }
-
-  return {
-    structured: extractCvStructuredDeterministic(text),
-    mode: "deterministic",
-  };
 }

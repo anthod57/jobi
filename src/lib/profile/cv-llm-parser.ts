@@ -5,7 +5,13 @@ import {
   type LlmApiKeyCredential,
   type LlmConfigCredential,
 } from "@/lib/ingestion/credentials-repository";
-import type { StructuredCv } from "./cv-sections";
+import {
+  extractCvStructuredDeterministic,
+  normalizeStructuredCv,
+  structuredCvSchema,
+  type StructuredCv,
+  type StructuredParseOutput,
+} from "./cv-sections";
 
 const CV_LLM_SYSTEM_PROMPT = `Tu es un parseur de CV ATS strict.
 Extrais les informations du CV fourni et réponds UNIQUEMENT avec un objet JSON valide (sans markdown ni texte autour) respectant exactement cette structure :
@@ -85,4 +91,30 @@ export async function parseCvWithLlm(
   } catch {
     return null;
   }
+}
+
+/** Hybrid structured CV parser: uses user LLM when available, silently falls back to deterministic. */
+export async function parseCvStructured(
+  text: string,
+  llmFn: (input: string) => Promise<StructuredCv | null> = parseCvWithLlm,
+): Promise<StructuredParseOutput> {
+  try {
+    const llmCandidate = await llmFn(text);
+    if (llmCandidate) {
+      const validated = structuredCvSchema.safeParse(llmCandidate);
+      if (validated.success) {
+        return {
+          structured: normalizeStructuredCv(validated.data),
+          mode: "llm",
+        };
+      }
+    }
+  } catch {
+    // Silent fallback to deterministic parser on any LLM error or timeout.
+  }
+
+  return {
+    structured: extractCvStructuredDeterministic(text),
+    mode: "deterministic",
+  };
 }

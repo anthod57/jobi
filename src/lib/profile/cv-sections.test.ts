@@ -2,19 +2,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
-const { mockParseCvWithLlm } = vi.hoisted(() => ({
-  mockParseCvWithLlm: vi.fn(),
-}));
-
-vi.mock("./cv-llm-parser", () => ({
-  parseCvWithLlm: mockParseCvWithLlm,
-}));
-
+import { parseCvStructured } from "./cv-llm-parser";
 import { parseCvBuffer } from "./cv-parse";
 import {
   extractCvSections,
   extractCvStructuredDeterministic,
-  parseCvStructured,
   structuredCvSchema,
 } from "./cv-sections";
 
@@ -172,7 +164,7 @@ describe("extractCvStructuredDeterministic", () => {
 
 describe("parseCvStructured", () => {
   it("uses LLM result when available and normalizes/deduplicates it", async () => {
-    mockParseCvWithLlm.mockResolvedValueOnce({
+    const out = await parseCvStructured("Bob\nbob@example.com", async () => ({
       contact: {
         fullName: "Bob",
         emails: ["bob@example.com"],
@@ -184,19 +176,18 @@ describe("parseCvStructured", () => {
       skills: ["React", "react", "TypeScript"],
       softSkills: ["Rigueur"],
       other: [],
-    });
-
-    const out = await parseCvStructured("Bob\nbob@example.com");
+    }));
     expect(out.mode).toBe("llm");
     expect(out.structured.skills).toEqual(["React", "TypeScript"]);
     expect(out.structured.contact.urls).toEqual(["github.com/bob"]);
   });
 
   it("falls back silently to deterministic mode when LLM returns null or throws", async () => {
-    mockParseCvWithLlm.mockRejectedValueOnce(new Error("timeout"));
-
     const out = await parseCvStructured(
       "Bob\nbob@example.com\nCOMPÉTENCES\nTypeScript, Node.js",
+      async () => {
+        throw new Error("timeout");
+      },
     );
     expect(out.mode).toBe("deterministic");
     expect(out.structured.skills).toEqual(["TypeScript", "Node.js"]);
