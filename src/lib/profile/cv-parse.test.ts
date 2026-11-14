@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
+import mammoth from "mammoth";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   CV_ERRORS,
@@ -35,6 +38,53 @@ describe("parseCvBuffer", () => {
   it("rejects unsupported content", async () => {
     const result = await parseCvBuffer(Buffer.from("plain text cv"));
     expect(result).toEqual({ ok: false, error: CV_ERRORS.unsupported });
+  });
+
+  it("extracts two-column PDF in top-banner then left-then-right column order without PUA icons", async () => {
+    const pdfPath = path.resolve(
+      process.cwd(),
+      "src/test/fixtures/cv/cv-two-column-backend.pdf",
+    );
+    const buffer = fs.readFileSync(pdfPath);
+    const result = await parseCvBuffer(buffer, "application/pdf");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.layout).toEqual({ isMultiColumn: true, pageCount: 1 });
+    expect(result.text).not.toMatch(/[\uE000-\uF8FF]/);
+  });
+
+  it("extracts single-column PDF with isMultiColumn: false", async () => {
+    const pdfPath = path.resolve(
+      process.cwd(),
+      "src/test/fixtures/cv/cv-complete-modern.pdf",
+    );
+    const buffer = fs.readFileSync(pdfPath);
+    const result = await parseCvBuffer(buffer, "application/pdf");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.layout.isMultiColumn).toBe(false);
+    expect(result.layout.pageCount).toBeGreaterThanOrEqual(1);
+  });
+
+  it("returns default single-column layout metadata for DOCX", async () => {
+    const spy = vi
+      .spyOn(mammoth, "extractRawText")
+      .mockResolvedValueOnce({ value: "Jean Dupont\n\uE001 Développeur", messages: [] });
+    const fakeDocx = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]);
+
+    const result = await parseCvBuffer(fakeDocx);
+    spy.mockRestore();
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.layout).toEqual({ isMultiColumn: false, pageCount: 1 });
+    expect(result.text).not.toMatch(/[\uE000-\uF8FF]/);
+    expect(result.text).toContain("Jean Dupont");
   });
 });
 

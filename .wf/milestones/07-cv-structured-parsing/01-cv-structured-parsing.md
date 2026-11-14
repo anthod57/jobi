@@ -140,7 +140,7 @@ export async function applyStructuredCvToProfile(): Promise<SaveProfileResult>;
 ## Todos
 
 - [x] Add `structuredSections`, `parseMode`, `isMultiColumn`, and `pageCount` columns to `profileCv` in `src/server/db/schema.ts` matching Contract and generate Drizzle migration in `drizzle/`
-- [ ] Test: `src/lib/profile/cv-parse.test.ts` — verify layout-aware PDF extraction (top banner + left-then-right column order on `cv-two-column-backend.pdf`, PUA icon removal, `layout.isMultiColumn`, `layout.pageCount`) and DOCX layout metadata; must fail until implemented
+- [x] Test: `src/lib/profile/cv-parse.test.ts` — verify layout-aware PDF extraction (top banner + left-then-right column order on `cv-two-column-backend.pdf`, PUA icon removal, `layout.isMultiColumn`, `layout.pageCount`) and DOCX layout metadata; must fail until implemented
 - [ ] Implement coordinate-based `pdfjs-dist` extraction (`y`-line grouping, top banner + vertical gutter detection, PUA strip) and `layout` metadata in `src/lib/profile/cv-parse.ts`
 - [ ] Test: `src/lib/profile/cv-sections.test.ts` — verify `structuredCvSchema` Zod validation, extended headers, subtitle filtering, strict `skills`/`softSkills`/`other` separation, URL normalization, case-insensitive skill dedup, and `parseCvStructured` LLM mock + silent fallback; must fail until implemented
 - [ ] Add `StructuredCv` types, `structuredCvSchema`, `extractCvStructuredDeterministic`, and `parseCvStructured` in `src/lib/profile/cv-sections.ts`
