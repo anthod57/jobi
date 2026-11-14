@@ -206,12 +206,12 @@ async function callAnthropic(
   return { text, promptTokens, completionTokens, totalTokens };
 }
 
-export async function generateWithLlm(
+export async function callLlmRaw(
   provider: LlmProvider,
   apiKey: string,
   model: string,
   prompt: ApplicationPrompt,
-): Promise<LlmGenerationResult> {
+): Promise<RawLlmResponse & { resolvedModel: string }> {
   if (!apiKey.trim()) {
     throw new Error(`Missing API key for provider ${provider}.`);
   }
@@ -238,6 +238,22 @@ export async function generateWithLlm(
   } else {
     raw = await callAnthropic(apiKey, resolvedModel, prompt);
   }
+
+  return { ...raw, resolvedModel };
+}
+
+export async function generateWithLlm(
+  provider: LlmProvider,
+  apiKey: string,
+  model: string,
+  prompt: ApplicationPrompt,
+): Promise<LlmGenerationResult> {
+  const { resolvedModel, ...raw } = await callLlmRaw(
+    provider,
+    apiKey,
+    model,
+    prompt,
+  );
 
   const parsed = parseDraftJson(raw.text);
   const estimatedCostUsd = estimateLlmCostUsd(
