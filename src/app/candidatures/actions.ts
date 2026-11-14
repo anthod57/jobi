@@ -150,13 +150,10 @@ export async function updateApplicationAction(input: {
     revalidatePath(`/offres/${updated.offerId}`);
 
     return { ok: true, data: undefined };
-  } catch (err) {
+  } catch {
     return {
       ok: false,
-      error:
-        err instanceof Error
-          ? err.message
-          : "Impossible de mettre à jour la candidature.",
+      error: "Impossible de mettre à jour la candidature.",
     };
   }
 }
@@ -179,13 +176,10 @@ export async function deleteApplicationAction(
     revalidatePath(`/offres/${deleted.offerId}`);
 
     return { ok: true, data: undefined };
-  } catch (err) {
+  } catch {
     return {
       ok: false,
-      error:
-        err instanceof Error
-          ? err.message
-          : "Impossible de supprimer la candidature.",
+      error: "Impossible de supprimer la candidature.",
     };
   }
 }

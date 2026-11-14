@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { profileUpdateInputSchema, type ProfileUpdateInput } from "@/lib/profile/schemas";
-import { parseCvBuffer, CV_MAX_BYTES } from "@/lib/profile/cv-parse";
+import { parseCvBuffer, sanitizeUploadFilename, CV_MAX_BYTES } from "@/lib/profile/cv-parse";
 import {
   getProfile as loadProfile,
   saveProfile as persistProfile,
@@ -64,7 +64,7 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
   try {
     const profile = await loadProfile();
     await upsertCvAfterParse(
-      field.name,
+      sanitizeUploadFilename(field.name),
       parsed.mimeType,
       parsed.text,
       profile.skills.map((s) => s.label),

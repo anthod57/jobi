@@ -23,7 +23,8 @@ Bugs et dettes hors phase courante. CLI: `wflow ticket add bug|test-gap …` · 
 | T-006 | bug | done | high | Tailwind CSS non compile sous Turbopack (next.config.ts) | — |
 | T-007 | bug | done | high | Profil non persisté en BDD ou non hydraté au redémarrage du front | — |
 | T-008 | bug | done | medium | Passe UI/UX : espacements, tailles de champs, responsivité et RGAA/WCAG | — |
-| T-009 | bug | open | high | Passe optimisation et sécurité (front, back, BDD) | — |
+| T-009 | bug | done | high | Passe optimisation et sécurité (front, back, BDD) | — |
+
 
 
 

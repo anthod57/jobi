@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   date,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -163,6 +164,10 @@ export const jobOffers = pgTable(
   },
   (table) => [
     uniqueIndex("job_offers_dedup_key_unique").on(table.dedupKey),
+    index("job_offers_active_published_idx").on(
+      table.isActive,
+      table.publishedAt,
+    ),
     check(
       "job_offers_salary_range_check",
       sql`${table.salaryMin} IS NULL OR ${table.salaryMax} IS NULL OR ${table.salaryMin} <= ${table.salaryMax}`,
@@ -190,23 +195,28 @@ export const jobOfferSources = pgTable(
       table.source,
       table.externalId,
     ),
+    index("job_offer_sources_offer_id_idx").on(table.offerId),
   ],
 );
 
-export const ingestionRuns = pgTable("ingestion_runs", {
-  id: serial("id").primaryKey(),
-  source: offerSourceEnum("source").notNull(),
-  status: ingestionRunStatusEnum("status").notNull(),
-  fetchedCount: integer("fetched_count").notNull().default(0),
-  insertedCount: integer("inserted_count").notNull().default(0),
-  updatedCount: integer("updated_count").notNull().default(0),
-  dedupedCount: integer("deduped_count").notNull().default(0),
-  errorMessage: text("error_message"),
-  startedAt: timestamp("started_at", { withTimezone: true, mode: "date" })
-    .notNull()
-    .defaultNow(),
-  finishedAt: timestamp("finished_at", { withTimezone: true, mode: "date" }),
-});
+export const ingestionRuns = pgTable(
+  "ingestion_runs",
+  {
+    id: serial("id").primaryKey(),
+    source: offerSourceEnum("source").notNull(),
+    status: ingestionRunStatusEnum("status").notNull(),
+    fetchedCount: integer("fetched_count").notNull().default(0),
+    insertedCount: integer("inserted_count").notNull().default(0),
+    updatedCount: integer("updated_count").notNull().default(0),
+    dedupedCount: integer("deduped_count").notNull().default(0),
+    errorMessage: text("error_message"),
+    startedAt: timestamp("started_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true, mode: "date" }),
+  },
+  (table) => [index("ingestion_runs_started_at_idx").on(table.startedAt)],
+);
 
 export const integrationCredentials = pgTable("integration_credentials", {
   provider: varchar("provider", { length: 40 }).primaryKey(),
@@ -233,6 +243,7 @@ export const offerScores = pgTable(
       .defaultNow(),
   },
   (table) => [
+    index("offer_scores_score_idx").on(table.score),
     check(
       "offer_scores_score_check",
       sql`${table.score} IS NULL OR (${table.score} >= 0 AND ${table.score} <= 100)`,
@@ -284,6 +295,10 @@ export const applications = pgTable(
   },
   (table) => [
     uniqueIndex("applications_offer_id_unique").on(table.offerId),
+    index("applications_status_updated_at_idx").on(
+      table.status,
+      table.updatedAt,
+    ),
   ],
 );
 

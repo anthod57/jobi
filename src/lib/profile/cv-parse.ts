@@ -51,6 +51,14 @@ export type CvParseFailure = {
 
 export type CvParseResult = CvParseSuccess | CvParseFailure;
 
+/** Strips directory paths and control characters, capping length to DB varchar(255). */
+export function sanitizeUploadFilename(rawName: string): string {
+  const base = rawName.split(/[/\\]/).pop() ?? "";
+  const cleaned = base.replace(/[\x00-\x1f\x7f]/g, "").trim();
+  if (!cleaned) return "cv";
+  return cleaned.length > 255 ? cleaned.slice(-255) : cleaned;
+}
+
 export async function parseCvBuffer(
   buffer: Buffer,
   declaredMime?: string,
@@ -68,12 +76,18 @@ export async function parseCvBuffer(
     if (kind === "pdf") {
       const { PDFParse } = await import("pdf-parse");
       const parser = new PDFParse({ data: buffer });
-      const parsed = await parser.getText();
-      const text = parsed.text?.trim() ?? "";
-      if (!text) {
-        return { ok: false, error: CV_ERRORS.extractFailed };
+      try {
+        const parsed = await parser.getText();
+        const text = parsed.text?.trim() ?? "";
+        if (!text) {
+          return { ok: false, error: CV_ERRORS.extractFailed };
+        }
+        return { ok: true, text, mimeType: PDF_MIME };
+      } finally {
+        if (typeof (parser as { destroy?: () => Promise<void> }).destroy === "function") {
+          await (parser as { destroy: () => Promise<void> }).destroy().catch(() => undefined);
+        }
       }
-      return { ok: true, text, mimeType: PDF_MIME };
     }
 
     const docx = await mammoth.extractRawText({ buffer });

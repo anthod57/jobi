@@ -63,30 +63,27 @@ async function computeMaxDaysOld(source: OfferSource): Promise<number> {
 
 async function fetchOffersForSource(
   source: OfferSource,
+  creds: FranceTravailCredentials | AdzunaCredentials,
   maxDaysOld: number,
-): Promise<NormalizedOfferInput[] | null> {
-  if (source === "france_travail") {
-    const creds =
-      await getDecryptedCredential<FranceTravailCredentials>("france_travail");
-    if (!creds) return null;
-    const query = await buildSearchQueryFromProfile({ maxDaysOld });
-    return fetchFranceTravailOffers(creds, query);
-  }
-
-  const creds = await getDecryptedCredential<AdzunaCredentials>("adzuna");
-  if (!creds) return null;
+): Promise<NormalizedOfferInput[]> {
   const query = await buildSearchQueryFromProfile({ maxDaysOld });
-  return fetchAdzunaOffers(creds, query);
+  if (source === "france_travail") {
+    return fetchFranceTravailOffers(creds as FranceTravailCredentials, query);
+  }
+  return fetchAdzunaOffers(creds as AdzunaCredentials, query);
 }
 
 async function syncSingleSource(
   source: OfferSource,
 ): Promise<IngestionRunSummary | null> {
   const db = getDb();
-  const maxDaysOld = await computeMaxDaysOld(source);
-
-  const credsCheck = await getDecryptedCredential(source);
-  if (!credsCheck) {
+  const [creds, maxDaysOld] = await Promise.all([
+    getDecryptedCredential<FranceTravailCredentials | AdzunaCredentials>(
+      source,
+    ),
+    computeMaxDaysOld(source),
+  ]);
+  if (!creds) {
     return null;
   }
 
@@ -108,7 +105,7 @@ async function syncSingleSource(
   let status: IngestionRunSummary["status"] = "success";
 
   try {
-    const offers = (await fetchOffersForSource(source, maxDaysOld)) ?? [];
+    const offers = await fetchOffersForSource(source, creds, maxDaysOld);
     fetchedCount = offers.length;
     const touchedOfferIds = new Set<number>();
 

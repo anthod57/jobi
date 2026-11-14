@@ -48,6 +48,10 @@ describe("candidatures repository", () => {
 
     const db = {
       insert: vi.fn(() => insertChains[insertIdx++]),
+      transaction: vi.fn(
+        async (cb: (tx: { insert: typeof db.insert }) => Promise<unknown>) =>
+          cb(db),
+      ),
     };
     mockGetDb.mockReturnValue(db);
 
