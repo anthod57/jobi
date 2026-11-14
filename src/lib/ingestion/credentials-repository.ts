@@ -5,7 +5,23 @@ import { integrationCredentials } from "@/server/db/schema";
 
 import { buildKeyHint, decryptSecretJson, encryptSecretJson } from "./crypto";
 
-export type CredentialProvider = "france_travail" | "adzuna" | "ingestion_cron";
+export type CredentialProvider =
+  | "france_travail"
+  | "adzuna"
+  | "ingestion_cron"
+  | "llm_mistral"
+  | "llm_openai"
+  | "llm_anthropic"
+  | "llm_config";
+
+export type LlmApiKeyCredential = {
+  apiKey: string;
+};
+
+export type LlmConfigCredential = {
+  activeProvider: "mistral" | "openai" | "anthropic";
+  model: string;
+};
 
 export type FranceTravailCredentials = {
   clientId: string;
@@ -33,6 +49,10 @@ const PROVIDERS: readonly CredentialProvider[] = [
   "france_travail",
   "adzuna",
   "ingestion_cron",
+  "llm_mistral",
+  "llm_openai",
+  "llm_anthropic",
+  "llm_config",
 ];
 
 /** Encrypts and upserts provider credentials into `integration_credentials`. */
