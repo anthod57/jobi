@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { profileUpdateInputSchema, type ProfileUpdateInput } from "@/lib/profile/schemas";
 import { parseCvBuffer, sanitizeUploadFilename, CV_MAX_BYTES } from "@/lib/profile/cv-parse";
+import { parseCvStructured } from "@/lib/profile/cv-sections";
 import {
   getProfile as loadProfile,
   saveProfile as persistProfile,
@@ -62,7 +63,10 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
   }
 
   try {
-    const profile = await loadProfile();
+    const [profile, structuredResult] = await Promise.all([
+      loadProfile(),
+      parseCvStructured(parsed.text),
+    ]);
     const cv = await upsertCvAfterParse(
       sanitizeUploadFilename(field.name),
       parsed.mimeType,
@@ -70,6 +74,11 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
       profile.skills.map((s) => s.label),
       profile.email,
       profile.phone,
+      {
+        structured: structuredResult.structured,
+        parseMode: structuredResult.mode,
+        layout: parsed.layout,
+      },
     );
     await recomputeScoresForAllOffers();
     revalidatePath("/profil");
@@ -78,5 +87,137 @@ export async function uploadCv(formData: FormData): Promise<UploadCvResult> {
   } catch (err) {
     console.error("[uploadCv] failed to persist CV:", err);
     return { ok: false, error: "Impossible d'enregistrer le CV." };
+  }
+}
+
+export async function reanalyzeCvWithAi(): Promise<UploadCvResult> {
+  try {
+    const profile = await loadProfile();
+    const cvRow = profile.cv;
+    if (!cvRow || !cvRow.extractedText.trim()) {
+      return { ok: false, error: "Aucun CV enregistré à analyser." };
+    }
+
+    const structuredResult = await parseCvStructured(cvRow.extractedText);
+    const cv = await upsertCvAfterParse(
+      cvRow.originalFilename,
+      cvRow.mimeType,
+      cvRow.extractedText,
+      profile.skills.map((s) => s.label),
+      profile.email,
+      profile.phone,
+      {
+        structured: structuredResult.structured,
+        parseMode: structuredResult.mode,
+        layout: {
+          isMultiColumn: cvRow.isMultiColumn,
+          pageCount: cvRow.pageCount,
+        },
+      },
+    );
+    await recomputeScoresForAllOffers();
+    revalidatePath("/profil");
+    revalidatePath("/offres");
+    return { ok: true, cv };
+  } catch (err) {
+    console.error("[reanalyzeCvWithAi] failed:", err);
+    return { ok: false, error: "Impossible de ré-analyser le CV." };
+  }
+}
+
+function toIsoDateOrNull(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed || /present|actuel|aujourd/i.test(trimmed)) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const yearMatch = trimmed.match(/\b(19\d{2}|20\d{2})\b/);
+  return yearMatch ? `${yearMatch[1]}-01-01` : null;
+}
+
+export async function applyStructuredCvToProfile(): Promise<SaveProfileResult> {
+  try {
+    const profile = await loadProfile();
+    const structured = profile.cv?.structuredSections;
+    if (!structured) {
+      return { ok: false, error: "Aucune donnée structurée de CV disponible." };
+    }
+
+    const existingSkillKeys = new Set(
+      profile.skills.map((s) => s.label.trim().toLowerCase()),
+    );
+    const mergedSkills = [...profile.skills.map((s) => s.label)];
+    for (const skill of structured.skills) {
+      const trimmed = skill.trim().slice(0, 120);
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (existingSkillKeys.has(key)) continue;
+      existingSkillKeys.add(key);
+      if (mergedSkills.length < 80) mergedSkills.push(trimmed);
+    }
+
+    const existingExpKeys = new Set(
+      profile.experiences.map(
+        (e) => `${e.title.trim().toLowerCase()}::${e.company.trim().toLowerCase()}`,
+      ),
+    );
+    const mergedExperiences = profile.experiences.map((e, idx) => ({
+      title: e.title,
+      company: e.company,
+      location: e.location,
+      startDate: e.startDate,
+      endDate: e.endDate,
+      description: e.description,
+      sortOrder: idx,
+    }));
+
+    const fallbackStartDate = `${new Date().getFullYear()}-01-01`;
+    for (const exp of structured.experiences) {
+      const title = exp.title.trim().slice(0, 200);
+      if (!title) continue;
+      const company = exp.company.trim().slice(0, 200);
+      const key = `${title.toLowerCase()}::${company.toLowerCase()}`;
+      if (existingExpKeys.has(key) || mergedExperiences.length >= 40) continue;
+      existingExpKeys.add(key);
+      mergedExperiences.push({
+        title,
+        company,
+        location: "",
+        startDate: toIsoDateOrNull(exp.startDate) ?? fallbackStartDate,
+        endDate: toIsoDateOrNull(exp.endDate),
+        description: exp.highlights.join("\n").slice(0, 8000),
+        sortOrder: mergedExperiences.length,
+      });
+    }
+
+    const candidateInput: ProfileUpdateInput = {
+      fullName: (profile.fullName.trim() || structured.contact.fullName?.trim() || "").slice(0, 200),
+      headline: (profile.headline.trim() || structured.contact.headline?.trim() || "").slice(0, 300),
+      email: profile.email.trim() || structured.contact.emails[0]?.trim() || "",
+      phone: (profile.phone.trim() || structured.contact.phones[0]?.trim() || "").slice(0, 40),
+      locationLabel: (
+        profile.locationLabel.trim() ||
+        structured.contact.location?.trim() ||
+        "Non renseigné"
+      ).slice(0, 200),
+      searchRadiusKm: profile.searchRadiusKm,
+      remotePreference: profile.remotePreference,
+      minSalaryAnnualGross: profile.minSalaryAnnualGross,
+      contractTypes: profile.contractTypes,
+      skills: mergedSkills,
+      experiences: mergedExperiences,
+    };
+
+    const validated = profileUpdateInputSchema.safeParse(candidateInput);
+    if (!validated.success) {
+      return { ok: false, error: "Données extraites incompatibles avec le profil." };
+    }
+
+    await persistProfile(validated.data);
+    await recomputeScoresForAllOffers();
+    revalidatePath("/profil");
+    revalidatePath("/offres");
+    return { ok: true };
+  } catch (err) {
+    console.error("[applyStructuredCvToProfile] failed:", err);
+    return { ok: false, error: "Impossible d'appliquer les données du CV." };
   }
 }

@@ -150,7 +150,7 @@ export async function applyStructuredCvToProfile(): Promise<SaveProfileResult>;
 - [x] Test: `src/lib/profile/repository.test.ts` — verify `ProfileCvDto` and `upsertCvAfterParse` persist and return `structuredSections`, `parseMode`, `isMultiColumn`, and `pageCount`; must fail until implemented
 - [x] Update `ProfileCvDto` and `upsertCvAfterParse` in `src/lib/profile/repository.ts` to persist and return structured CV and layout metadata
 - [x] Test: `src/app/profil/actions.test.ts` — verify `uploadCv` hybrid parse, `reanalyzeCvWithAi`, and `applyStructuredCvToProfile` (non-destructive merge + offer rescoring); must fail until implemented
-- [ ] Update `uploadCv` and implement `reanalyzeCvWithAi` and `applyStructuredCvToProfile` in `src/app/profil/actions.ts`
+- [x] Update `uploadCv` and implement `reanalyzeCvWithAi` and `applyStructuredCvToProfile` in `src/app/profil/actions.ts`
 
 ## UAT
 
