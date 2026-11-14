@@ -2,7 +2,7 @@
 id: M6-02
 phase: 2
 role: web
-status: review
+status: done
 branch: feat/m6-02-candidatures-ui
 needs: [M6-01, M5-02]
 ---
@@ -85,6 +85,7 @@ export async function updateApplicationAction(input: {
 - [x] fix: append profile fullName signature locally after LLM draft generation and place OfferApplicationPanel below ScoreBreakdownCard on lg screens
 - [x] fix: stack Ton and Consigne particulière full-width in OfferApplicationPanel for narrow sidebar column
 - [x] feat(prompt): adapt and improve letter.md prompt rules in buildApplicationPrompt
+- [x] feat(candidatures): add deleteApplicationAction and delete button with confirmation on ApplicationCard and OfferApplicationPanel
 
 ## UAT
 
@@ -92,4 +93,4 @@ export async function updateApplicationAction(input: {
 - [x] (auto) GET `/candidatures` and GET `/parametres` return HTTP 200 with `<html lang="fr">` and expected headings
 - [x] (human) Keyboard & contrast (shared-audit §4): Tab through `/parametres` LLM config, `/offres/[id]` application panel, and `/candidatures` filters/cards with visible focus; charts and badges remain readable in light/dark mode
 - [x] (human) DS only (shared-design-system): `src/components/candidatures/*`, `src/app/candidatures/*`, and updated `settings-panel.tsx` import UI exclusively from `@/components/ui` (no raw `#hex`, no charting lib, no ad hoc styles)
-- [ ] (human) End-to-end UX check: configure LLM key in `/parametres`, generate & edit draft on `/offres/[id]` (with privacy notice and 1-click copy), and verify `/candidatures` updates KPIs, charts, status, and token/cost stats
+- [x] (human) End-to-end UX check: configure LLM key in `/parametres`, generate & edit draft on `/offres/[id]` (with privacy notice and 1-click copy), and verify `/candidatures` updates KPIs, charts, status, and token/cost stats
