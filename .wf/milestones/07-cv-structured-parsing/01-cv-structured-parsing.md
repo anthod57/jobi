@@ -146,7 +146,7 @@ export async function applyStructuredCvToProfile(): Promise<SaveProfileResult>;
 - [x] Add `StructuredCv` types, `structuredCvSchema`, `extractCvStructuredDeterministic`, and `parseCvStructured` in `src/lib/profile/cv-sections.ts`
 - [x] Create `src/lib/profile/cv-llm-parser.ts` reusing LLM config from `src/lib/candidatures/llm-client.ts` with strict JSON prompt, Zod validation, and silent fallback on error/timeout
 - [x] Test: `src/lib/profile/ats/runAtsAnalysis.test.ts` — verify `AtsContext` accepts optional `structured`/`layout` and rules (`contact`, `structure`, `format`, `dates`) use `structured`, `layout.isMultiColumn`, and `pageCount > 2` with legacy backward compatibility; must fail until implemented
-- [ ] Update `AtsContext` in `src/lib/profile/ats/types.ts` and rules in `src/lib/profile/ats/rules/contact.ts`, `structure.ts`, `format.ts`, `dates.ts` (plus `src/lib/profile/ats/runAtsAnalysis.ts` wiring)
+- [x] Update `AtsContext` in `src/lib/profile/ats/types.ts` and rules in `src/lib/profile/ats/rules/contact.ts`, `structure.ts`, `format.ts`, `dates.ts` (plus `src/lib/profile/ats/runAtsAnalysis.ts` wiring)
 - [ ] Test: `src/lib/profile/repository.test.ts` — verify `ProfileCvDto` and `upsertCvAfterParse` persist and return `structuredSections`, `parseMode`, `isMultiColumn`, and `pageCount`; must fail until implemented
 - [ ] Update `ProfileCvDto` and `upsertCvAfterParse` in `src/lib/profile/repository.ts` to persist and return structured CV and layout metadata
 - [ ] Test: `src/app/profil/actions.test.ts` — verify `uploadCv` hybrid parse, `reanalyzeCvWithAi`, and `applyStructuredCvToProfile` (non-destructive merge + offer rescoring); must fail until implemented

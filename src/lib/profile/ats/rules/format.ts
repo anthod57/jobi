@@ -1,4 +1,4 @@
-import type { AtsFinding, AtsRule } from "../types";
+import type { AtsContext, AtsFinding, AtsRule } from "../types";
 import { linesOf } from "../text-helpers";
 
 function finding(partial: Omit<AtsFinding, "category">): AtsFinding {
@@ -57,7 +57,18 @@ export const formatRules: AtsRule[] = [
     }
     return [];
   },
-  (text: string) => {
+  (text: string, ctx: AtsContext) => {
+    if (ctx.layout?.isMultiColumn) {
+      return [
+        finding({
+          code: "SUSPECTED_COLUMNS",
+          severity: "warning",
+          message:
+            "Mise en page en colonnes détectée sur le PDF (certains ATS anciens lisent mal les colonnes).",
+          pointsDeducted: 5,
+        }),
+      ];
+    }
     const lines = linesOf(text);
     if (lines.length === 0) return [];
     const columnLike = lines.filter(
@@ -71,6 +82,19 @@ export const formatRules: AtsRule[] = [
           message:
             "Mise en page en colonnes ou tableaux détectée (peu lisible pour certains ATS).",
           pointsDeducted: 5,
+        }),
+      ];
+    }
+    return [];
+  },
+  (_text: string, ctx: AtsContext) => {
+    if ((ctx.layout?.pageCount ?? 1) > 2) {
+      return [
+        finding({
+          code: "TOO_MANY_PAGES",
+          severity: "info",
+          message: `Le CV fait ${ctx.layout?.pageCount} pages (1 à 2 pages recommandées pour un ATS).`,
+          pointsDeducted: 2,
         }),
       ];
     }

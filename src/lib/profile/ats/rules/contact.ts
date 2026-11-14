@@ -12,7 +12,8 @@ function finding(partial: Omit<AtsFinding, "category">): AtsFinding {
 export const contactRules: AtsRule[] = [
   (text: string, ctx: AtsContext) => {
     const emailsInCv = findEmails(text);
-    if (emailsInCv.length === 0 && !ctx.profileEmail.trim()) {
+    const hasStructuredEmail = (ctx.structured?.contact.emails.length ?? 0) > 0;
+    if (emailsInCv.length === 0 && !hasStructuredEmail && !ctx.profileEmail.trim()) {
       return [
         finding({
           code: "MISSING_EMAIL",
@@ -40,7 +41,8 @@ export const contactRules: AtsRule[] = [
     return [];
   },
   (text: string, ctx: AtsContext) => {
-    if (!hasPhonePattern(text) && !ctx.profilePhone.trim()) {
+    const hasStructuredPhone = (ctx.structured?.contact.phones.length ?? 0) > 0;
+    if (!hasPhonePattern(text) && !hasStructuredPhone && !ctx.profilePhone.trim()) {
       return [
         finding({
           code: "MISSING_PHONE",
