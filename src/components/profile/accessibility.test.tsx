@@ -32,6 +32,10 @@ describe("Profile accessibility (RGAA/WCAG)", () => {
           ],
           uploadedAt: new Date("2026-01-01T00:00:00.000Z"),
           atsAnalyzedAt: new Date("2026-01-01T00:00:00.000Z"),
+          structuredSections: null,
+          parseMode: "deterministic",
+          isMultiColumn: false,
+          pageCount: 1,
         }}
       />,
     );
